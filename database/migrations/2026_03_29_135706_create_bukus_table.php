@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('bukus', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('petugas_id')->constrained('petugas')->onDelete('cascade');
-            $table->string('cover_image')->nullable();
-            $table->integer('kode_buku')->unique();
+            $table->string('kode_buku')->unique();
             $table->string('judul_buku')->nullable();
             $table->string('penulis')->nullable();
-            $table->integer('tahun_terbit')->nullable();
+            $table->date('tahun_terbit')->nullable();
+            $table->text('sinopsis')->nullable();
             $table->integer('stock_buku')->nullable();
+            $table->string('cover_image')->nullable();
             $table->timestamps();
         });
     }

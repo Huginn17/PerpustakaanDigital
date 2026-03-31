@@ -13,9 +13,9 @@ Route::controller(BukuController::class)->group(function () {
     Route::get('/buku', 'index')->name('buku.index');
     Route::get('/buku/create', 'create')->name('buku.create');
     Route::post('/buku', 'store')->name('buku.store');
-    Route::get('/buku/{id}/edit', 'edit')->name('buku.edit');
-    Route::put('/buku/{id}', 'update')->name('buku.update');
-    Route::delete('/buku/{id}', 'destroy')->name('buku.destroy');
+    Route::get('/buku/{buku}/edit', 'edit')->name('buku.edit');
+    Route::put('/buku/{buku}', 'update')->name('buku.update');
+    Route::delete('/buku/{buku}', 'destroy')->name('buku.destroy');
 });
 
 //Auth Controllers

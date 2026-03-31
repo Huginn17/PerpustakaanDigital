@@ -10,15 +10,17 @@
     <tr>
         <th>Kode</th>
         <th>Judul</th>
+        <th>Sinopsis</th>
         <th>Penulis</th>
         <th>Stock</th>
         <th>Aksi</th>
     </tr>
 
-    @foreach($bukus as $buku)
+    @foreach($buku as $buku)
     <tr>
         <td>{{ $buku->kode_buku }}</td>
         <td>{{ $buku->judul_buku }}</td>
+        <td>{{ $buku->sinopsis }}</td>
         <td>{{ $buku->penulis }}</td>
         <td>{{ $buku->stock_buku }}</td>
         <td>

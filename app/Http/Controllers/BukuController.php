@@ -3,87 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buku;
-use App\Models\Petugas;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class BukuController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $bukus = Buku::with('petugas')->get();
-        return view('petugas.buku.index', compact('bukus'));
+        $buku = Buku::all();
+        return view('petugas.buku.index', compact('buku'));
     }
 
     public function create()
     {
-        $petugas = Petugas::all();
-        return view('petugas.buku.create', compact('petugas'));
+        return view('petugas.buku.create');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'kode_buku' => 'required|unique:bukus',
+        $validated = $request->validate([
+            'kode_buku'    => 'required|unique:bukus,kode_buku',
+            'judul_buku'   => 'required',
+            'penulis'      => 'required',
+            'sinopsis'     => 'nullable',
+            'tahun_terbit' => 'required|date',
+            'stock_buku'   => 'required|integer|min:0',
+            'cover_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $data = $request->all();
-
-        $data = $request->only([
-            'kode_buku',
-            'judul_buku',
-            'penulis',
-            'tahun_terbit',
-            'stock_buku'
-        ]);
-
-        $data['petugas_id'] = Auth::user()->petugas->id;
-
-        // upload gambar
+        // Upload gambar 
         if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store('covers', 'public');
+            $validated['cover_image'] = $request->file('cover_image')->store('covers', 'public');
         }
 
-        Buku::create($data);
+        Buku::create($validated);
 
         return redirect()->route('buku.index')->with('success', 'Data berhasil ditambahkan');
     }
 
-    public function edit($id)
+    public function edit(Buku $buku)
     {
-        $buku = Buku::findOrFail($id);
-        $petugas = Petugas::all();
-
-        return view('petugas.buku.edit', compact('buku', 'petugas'));
+        return view('petugas.buku.edit', ["buku" => $buku]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Buku $buku)
     {
-        $buku = Buku::findOrFail($id);
-
-        $data = $request->all();
-
-        $data = $request->only([
-            'kode_buku',
-            'judul_buku',
-            'penulis',
-            'tahun_terbit',
-            'stock_buku'
+        $validated = $request->validate([
+            'kode_buku'    => 'required|unique:bukus,kode_buku',
+            'judul_buku'   => 'required',
+            'penulis'      => 'required',
+            'tahun_terbit' => 'required|date',
+            'sinopsis'     => 'nullable',
+            'stock_buku'   => 'required|integer|min:0',
+            'cover_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store('covers', 'public');
+            if ($buku->cover_image && Storage::disk('public')->exists($buku->cover_image)) {
+                Storage::disk('public')->delete($buku->cover_image);
+            }
         }
 
-        $buku->update($data);
-    
+
+        if ($request->hasFile('cover_image')) {
+            $validated['cover_image'] = $request->file('cover_image')->store('covers', 'public');
+        }
+
+        $buku->update($validated);
+
         return redirect()->route('buku.index')->with('success', 'Data berhasil diupdate');
     }
 
-    public function destroy($id)
+    public function destroy(Buku $buku)
     {
-        $buku = Buku::findOrFail($id);
-        $buku->delete();
+
+        if ($buku->cover_image && Storage::disk('public')->exists($buku->cover_image)) {
+        Storage::disk('public')->delete($buku->cover_image);
+    }
+
+        $buku->delete($buku->id);
 
         return redirect()->route('buku.index')->with('success', 'Data berhasil dihapus');
     }
