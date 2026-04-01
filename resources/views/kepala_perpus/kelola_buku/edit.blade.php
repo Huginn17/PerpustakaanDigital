@@ -1,5 +1,5 @@
-@extends('petugas.layout.index')
-@section('petugas')
+@extends('kepala_perpus.layout.index')
+@section('kepala_content')
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
@@ -47,7 +47,7 @@
                     </div>
 
                     <div class="md:w-2/3 p-8 lg:p-12 bg-white">
-                        <form action="{{ route('buku.update', $buku->id) }}" method="POST" enctype="multipart/form-data"
+                        <form action="{{ route('kepala.buku.update', $buku->id) }}" method="POST" enctype="multipart/form-data"
                             class="space-y-5">
                             @csrf
                             @method('PUT')
@@ -104,7 +104,7 @@
                                     class="flex-1 py-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-200 transition-all transform active:scale-95">
                                     Perbarui Data
                                 </button>
-                                <a href="{{ route('buku.index') }}"
+                                <a href="{{ route('kepala.buku.index') }}"
                                     class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all text-center">
                                     Batal
                                 </a>

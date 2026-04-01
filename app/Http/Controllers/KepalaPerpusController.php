@@ -6,18 +6,17 @@ use App\Models\Buku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class BukuController extends Controller
+class KepalaPerpusController extends Controller
 {
-    public function index(Request $request)
+     public function index(Request $request)
     {
-        
         $buku = Buku::all();
-        return view('petugas.buku.index', compact('buku'));
+        return view('kepala_perpus.kelola_buku.index', compact('buku'));
     }
 
     public function create()
     {
-        return view('petugas.buku.create');
+        return view('kepala_perpus.kelola_buku.create');
     }
 
     public function store(Request $request)
@@ -39,18 +38,18 @@ class BukuController extends Controller
 
         Buku::create($validated);
 
-        return redirect()->route('buku.index')->with('success', 'Data berhasil ditambahkan');
+        return redirect()->route('kepala.buku.index')->with('success', 'Data berhasil ditambahkan');
     }
 
     public function edit(Buku $buku)
     {
-        return view('petugas.buku.edit', ["buku" => $buku]);
+        return view('kepala_perpus.kelola_buku.edit', ["buku" => $buku]);
     }
 
     public function update(Request $request, Buku $buku)
     {
         $validated = $request->validate([
-            'kode_buku'    => 'required|unique:bukus,kode_buku,' . $buku->id,
+            'kode_buku'    => 'required|unique:bukus,kode_buku',
             'judul_buku'   => 'required',
             'penulis'      => 'required',
             'tahun_terbit' => 'required|date',
@@ -59,33 +58,31 @@ class BukuController extends Controller
             'cover_image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Hapus gambar lama jika ada
         if ($request->hasFile('cover_image')) {
             if ($buku->cover_image && Storage::disk('public')->exists($buku->cover_image)) {
                 Storage::disk('public')->delete($buku->cover_image);
             }
-        } 
+        }
 
-        // Upload gambar baru
+
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('covers', 'public');
         }
 
         $buku->update($validated);
 
-        return redirect()->route('buku.index')->with('success', 'Data berhasil diupdate');
+        return redirect()->route('kepala.buku.index')->with('success', 'Data berhasil diupdate');
     }
 
     public function destroy(Buku $buku)
     {
 
-    // Hapus gambar lama jika ada
         if ($buku->cover_image && Storage::disk('public')->exists($buku->cover_image)) {
         Storage::disk('public')->delete($buku->cover_image);
     }
 
         $buku->delete($buku->id);
 
-        return redirect()->route('buku.index')->with('success', 'Data berhasil dihapus');
+        return redirect()->route('kepala.buku.index')->with('success', 'Data berhasil dihapus');
     }
 }

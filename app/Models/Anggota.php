@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Anggota extends Model
 {
-    protected $table = 'anggota';
-    
+    protected $table = 'anggotas';
+
     protected $guarded = [];
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    
 }

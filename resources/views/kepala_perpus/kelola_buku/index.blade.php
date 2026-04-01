@@ -1,5 +1,5 @@
-@extends('petugas.layout.index')
-@section('petugas')
+@extends('kepala_perpus.layout.index')
+@section('kepala_content')
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
@@ -19,7 +19,7 @@
                         <p class="text-slate-500 mt-1">Kelola katalog perpustakaan Anda dengan cepat dan efisien.</p>
                     </div>
 
-                    <a href="{{ route('buku.create') }}"
+                    <a href="{{ route('kepala.buku.create') }}"
                         class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-1 active:scale-95">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -98,7 +98,7 @@
                                         <td class="px-6 py-4 text-right">
                                             <div
                                                 class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <a href="{{ route('buku.edit', $b->id) }}"
+                                                <a href="{{ route('kepala.buku.edit', $b->id) }}"
                                                     class="p-2 bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white rounded-xl transition-all shadow-sm"
                                                     title="Edit Data">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -110,7 +110,7 @@
                                                     </svg>
                                                 </a>
 
-                                                <form action="{{ route('buku.destroy', $b->id) }}" method="POST"
+                                                <form action="{{ route('kepala.buku.destroy', $b->id) }}" method="POST"
                                                     class="inline">
                                                     @csrf
                                                     @method('DELETE')

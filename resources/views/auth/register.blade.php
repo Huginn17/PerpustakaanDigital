@@ -1,98 +1,161 @@
-    <!DOCTYPE html>
-    <html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Register - AreaKerja</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Perpustakaan Modern</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-        <style>
-            body {
-                font-family: 'Poppins', sans-serif;
-            }
-        </style>
-    </head>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
 
-    <body class="bg-gray-100 min-h-screen flex flex-col">
+        .bg-pattern {
+            background-color: #6366f1;
+            background-image: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+        }
+    </style>
+</head>
 
-        <!-- Container -->
-        <div class="flex flex-col md:flex-row w-full min-h-screen">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-0 md:p-6">
 
-            <!-- Form -->
-            <div class="flex w-full md:w-3/5 bg-white items-center justify-center px-6 sm:px-10 py-10">
+    <div
+        class="flex flex-col md:flex-row w-full max-w-6xl min-h-[90vh] bg-white md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100">
 
-                <div class="w-full max-w-md mb-24">
+        <div class="flex w-full md:w-1/2 lg:w-2/5 bg-white items-center justify-center px-8 sm:px-12 py-12">
+            <div class="w-full max-w-sm">
 
-                    <!-- Logo -->
-                    <div class="flex items-center gap-2 mb-8 md:mb-14">
-                        <img src="{{ asset('images/logobuku.png') }}" alt="Logo" class="h-12 w-12">
-                        <span class="font-bold mb-1 text-blue-500">perpus</span>
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200">
+                        <img src="{{ asset('images/logobuku.png') }}" alt="Logo"
+                            class="h-8 w-8 brightness-0 invert">
                     </div>
+                    <span class="font-extrabold text-2xl tracking-tighter text-slate-800 italic">PERPUS<span
+                            class="text-indigo-600">.</span></span>
+                </div>
 
-                    <div class="pt-4">
-                        <h2 class="text-2xl font-semibold text-center text-blue-600 mb-6">Buat Akun</h2>
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 leading-tight">Buat Akun Baru</h2>
+                    <p class="text-slate-500 mt-2">Daftar sekarang untuk mulai meminjam buku favoritmu.</p>
+                </div>
+
+                <div class="flex p-1 bg-slate-100 rounded-2xl mb-8 w-fit">
+                    <div
+                        class="bg-white px-6 py-2 rounded-xl text-sm font-bold text-indigo-600 shadow-sm border border-slate-200 flex items-center gap-2">
+                        <i class="ph-bold ph-user"></i> Anggota
                     </div>
+                </div>
 
-                    <div class="flex justify-center mb-6">
-                        <div class="bg-gray-200 rounded-full p-1 flex space-x-1">
-                            <div class="bg-blue-500 text-white px-6 py-2 rounded-full text-sm font-semibold">
-                                Anggota
-                            </div>
+                @if ($errors->any())
+                    <div class="bg-rose-50 border border-rose-100 text-rose-600 p-4 rounded-2xl mb-6 text-sm">
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('registerproses') }}" method="POST" class="space-y-5">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama
+                            Pengguna</label>
+                        <div class="relative group">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                <i class="ph ph-user-circle-plus text-xl"></i>
+                            </span>
+                            <input type="text" name="username" placeholder="Masukan username"
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300">
                         </div>
                     </div>
-
-                    @if ($errors->any())
-                        <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
 
                     <div>
-                        <form action="{{ route('registerproses') }}" method="POST" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 m-2">Nama Pengguna</label>
-                                <input type="text" name="username" placeholder="Nama Pengguna"
-                                    class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                <p class="text-red-500 text-sm mt-1 error-message" data-field="username"></p>
-                            </div>
+                        <label
+                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">E-mail</label>
+                        <div class="relative group">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                <i class="ph ph-envelope-simple text-xl"></i>
+                            </span>
+                            <input type="email" name="email" placeholder="nama@email.com"
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300">
+                        </div>
+                    </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 m-2">Email</label>
-                                <input type="email" name="email" placeholder="E-mail"
-                                    class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                <p class="text-red-500 text-sm mt-1 error-message" data-field="email"></p>
-                            </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Kata
+                            Sandi</label>
+                        <div class="relative group">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                <i class="ph ph-lock-key text-xl"></i>
+                            </span>
+                            <input type="password" name="password" placeholder="••••••••"
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300">
+                        </div>
+                    </div>
 
+                    <input type="hidden" name="role" value="anggota">
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 m-2">Kata Sandi</label>
-                                <input type="password" name="password" placeholder="Kata Sandi"
-                                    class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                <p class="text-red-500 text-sm mt-1 error-message" data-field="password"></p>
-                            </div>
+                    <button type="submit"
+                        class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                        Daftar Akun <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </form>
 
-                            <input type="hidden" name="role" value="anggota">
+                <p class="text-center mt-8 text-slate-500 text-sm md:hidden">
+                    Sudah punya akun? <a href="{{ route('HalLogin') }}"
+                        class="text-indigo-600 font-bold hover:underline">Masuk di sini</a>
+                </p>
+            </div>
+        </div>
 
-                            <button type="submit"
-                                class="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 mt-6">
-                                Daftar
-                            </button>
-                        </form>
+        <section
+            class="relative hidden md:flex md:w-1/2 lg:w-3/5 bg-pattern items-center justify-center p-12 overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full -ml-20 -mb-20 blur-3xl"></div>
+
+            <div class="relative z-10 w-full max-w-lg text-center">
+                <div class="mb-8 flex justify-center">
+                    <div
+                        class="w-24 h-24 bg-white/20 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl border border-white/30 animate-bounce">
+                        <i class="ph-fill ph-books text-5xl text-white"></i>
+                    </div>
+                </div>
+
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight">Jendela Dunia di Genggaman
+                    Anda.</h2>
+                <p class="text-indigo-100 text-lg mb-10 leading-relaxed opacity-90">
+                    Bergabunglah dengan ribuan pembaca lainnya dan nikmati akses literasi tanpa batas.
+                </p>
+
+                <div class="inline-block p-1 bg-white/10 backdrop-blur-lg border border-white/20 rounded-[2rem]">
+                    <div class="flex items-center gap-4 px-6 py-4">
+                        <p class="text-white font-medium">Sudah punya akun?</p>
+                        <a href="{{ route('HalLogin') }}"
+                            class="px-8 py-2.5 bg-white text-indigo-900 rounded-full font-bold hover:bg-indigo-50 transition-all shadow-lg">
+                            MASUK
+                        </a>
                     </div>
                 </div>
             </div>
 
-            {{-- =============== MODAL PELAMAR =============== --}}
-            {{-- <div id="successModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50">
+            <img src="{{ asset('images/perpustakaan.jpg') }}" alt="Background"
+                class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay">
+        </section>
+    </div>
+
+    {{-- =============== MODAL PELAMAR =============== --}}
+    {{-- <div id="successModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50">
                 <div class="relative bg-white rounded-2xl shadow-lg w-[90%] max-w-md p-8 text-center">
                     <button onclick="closeModal()"
                         class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
@@ -109,20 +172,8 @@
                 </div>
             </div> --}}
 
-            <section class="relative hidden md:flex md:w-2/5 lg:w-2/4 min:h-screen overflow-hidden">
-                <img src="{{ asset('images/perpustakaan.jpg') }}" alt="Background" class="w-full h-full object-cover">
-                <div
-                    class="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center text-white px-6 pb-56">
-                    {{-- <h2 class="text-3xl font-semibold mb-4">Hallo, Jobseeker</h2> --}}
-                    <p class="mb-6">Untuk tetap terhubung dengan kami, silakan masuk dengan informasi pribadi Anda.
-                    </p>
-                    <a href="{{ route('HalLogin') }}"
-                        class="px-20 py-4 border border-white rounded-full hover:bg-white hover:text-black transition">MASUK</a>
-                </div>
-            </section>
-        </div>
 
-        {{-- <script>
+    {{-- <script>
             document.getElementById("registerForm").addEventListener("submit", async function(e) {
                 e.preventDefault();
 
@@ -179,6 +230,6 @@
             }
         </script> --}}
 
-    </body>
+</body>
 
-    </html>
+</html>

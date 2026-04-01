@@ -27,7 +27,7 @@
         <div class="h-full px-3 py-4 overflow-y-auto bg-neutral-primary-soft border-e border-default">
             <ul class="space-y-2 font-medium">
                 <li>
-                    <a href="{{ route('petugasDashboard') }}"
+                    <a href="{{ route('kepalaDashboard') }}"
                         class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
                         <svg class="w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
@@ -41,7 +41,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('buku.index') }}"
+                    <a href="{{ route('kepala.buku.index') }}"
                         class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
                         <svg class="shrink-0 w-5 h-5 transition duration-75 group-hover:text-fg-brand"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -237,7 +237,7 @@
             </div>
         </div>
     </div>
-    @yield('petugas')
+    @yield('kepala_content')
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
 </body>

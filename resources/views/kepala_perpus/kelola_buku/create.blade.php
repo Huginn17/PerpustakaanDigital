@@ -1,5 +1,5 @@
-@extends('petugas.layout.index')
-@section('petugas')
+@extends('kepala_perpus.layout.index')
+@section('kepala_content')
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
@@ -14,7 +14,7 @@
             <div class="max-w-2xl w-full">
 
                 <div class="mb-6">
-                    <a href="{{ route('buku.index') }}"
+                    <a href="{{ route('kepala.buku.index') }}"
                         class="text-sm font-semibold text-indigo-600 hover:text-indigo-800 flex items-center transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -31,7 +31,7 @@
                             sistem.</p>
                     </div>
 
-                    <form action="{{ route('buku.store') }}" method="POST" enctype="multipart/form-data"
+                    <form action="{{ route('kepala.buku.store') }}" method="POST" enctype="multipart/form-data"
                         class="p-8 space-y-6">
                         @csrf
 

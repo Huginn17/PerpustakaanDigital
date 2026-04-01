@@ -21,111 +21,93 @@
     </style>
 </head>
 
-<body class="bg-gray-100">
-    <div class="flex flex-col md:flex-row min-h-screen">
+<body class="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen font-[Poppins]">
 
-       
-        <section class="relative lg:h-auto md:w-2/4 w-full hidden lg:block">
+<div class="flex items-center justify-center min-h-screen px-4">
 
-            <img src="{{ asset('images/perpustakaan.jpg') }}" alt="Background"
-                class="absolute inset-0 w-full h-full object-cover">
+    <div class="flex w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden">
 
+        <!-- KIRI (ILUSTRASI) -->
+        <div class="hidden lg:flex w-1/2 relative">
+            <img src="{{ asset('images/perpustakaan.jpg') }}" 
+                 class="absolute inset-0 w-full h-full object-cover">
             
-            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+            <div class="absolute inset-0 bg-black/60"></div>
 
-            <!-- Konten -->
-            <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-6">
+            <div class="relative z-10 flex flex-col justify-center items-center text-white p-8 text-center">
+                <img src="{{ asset('images/logobuku.png') }}" class="w-16 mb-4">
 
-                <!-- Logo -->
-                <div class="absolute top-6 left-6 flex items-center">
-                    <img src="{{ asset('images/logobuku.png') }}" alt="Logo" class="h-12 w-12">
-                    <span class="font-semibold mb-1">perpus</span>
-                </div>
+                <h2 class="text-2xl font-semibold mb-3">Selamat Datang</h2>
 
-                <!-- Text -->
-                <p class="text-sm mb-10">untuk tetap terhubung dengan kami, silakan<br> masuk dengan informasi pribadi
-                    Anda</p>
+                <p class="text-sm mb-6">
+                    Jelajahi ribuan buku menarik dan tingkatkan wawasanmu bersama kami
+                </p>
 
-                <!-- Button -->
-                <a href="{{ route('HalRegister') }}"
-                    class="px-20 py-4 border border-white rounded-full hover:bg-white hover:text-black transition">
-                    DAFTAR
+                <a href="{{ route('HalRegister') }}" 
+                   class="px-8 py-3 border border-white rounded-full hover:bg-white hover:text-black transition">
+                    Daftar Sekarang
                 </a>
             </div>
-        </section>
+        </div>
 
+        <!-- KANAN (FORM) -->
+        <div class="w-full lg:w-1/2 p-10">
 
+            <h2 class="text-2xl font-bold text-gray-700 text-center mb-2">
+                Login Akun
+            </h2>
 
-        <!-- Kanan -->
-        <div class="flex w-full lg:w-4/5 bg-white items-start justify-center min-h-screen py-10">
+            <p class="text-center text-gray-400 mb-6 text-sm">
+                Masukkan username dan password Anda
+            </p>
 
-            <div class="w-full max-w-md p-8 min-h-screen flex flex-col justify-start">
+            <!-- ALERT -->
+            @if (session('error'))
+            <div class="mb-4 bg-red-100 text-red-600 p-2 rounded text-sm text-center">
+                {{ session('error') }}
+            </div>
+            @endif
 
-                <div class="w-full flex flex-col">
+            <!-- FORM -->
+            <form action="{{ route('loginproses') }}" method="POST" class="space-y-5">
+                @csrf
 
-                    <!-- Judul -->
-                    <h2 class="text-2xl font-semibold text-center text-blue-600 mb-6">Masuk & Temukan Buku Favorit Anda</h2>
-
-                    <p class="text-center text-gray-500 mb-6 text-sm">
-                        gunakan email Anda untuk pendaftaran
-                    </p>
-
-                    <!-- Alert -->
-                    @if (session('success'))
-                        <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 text-sm text-center">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if (session('error'))
-                        <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm text-center">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm text-center">
-                            {{ $errors->first() }}
-                        </div>
-                    @endif
-
-                    <!-- Form Login -->
-                    <form action="{{ route('loginproses') }}" method="POST" class="space-y-4">
-                        @csrf
-
-                        <div>
-                            <label for="username" class="block text-sm font-medium text-gray-700">Nama Pengguna</label>
-                            <input type="text" id="username" name="username" placeholder="Nama Pengguna"
-                                class="mt-2 block w-full border border-gray-700 rounded-lg p-2.5 focus:ring-orange-500 focus:border-orange-500" />
-                        </div>
-
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
-                            <input type="password" id="password" name="password" placeholder="Kata Sandi"
-                                class="mt-2 block w-full border border-gray-700 rounded-lg p-2.5 focus:ring-orange-500 focus:border-orange-500" />
-                        </div>
-
-                        <div class="flex justify-center">
-                            <button type="submit"
-                                class="w-52 h-14 bg-blue-500 text-white py-2.5 rounded-full font-normal text-md hover:bg-orange-600 transition duration-300 hover:scale-95">
-                                MASUK
-                            </button>
-                        </div>
-
-                        <p class="text-center text-sm mt-4">
-                            Tidak Memiliki Akun?
-                            <a href="register" class="text-blue-500 font-medium">
-                                Daftar Sekarang
-                            </a>
-                        </p>
-
-                    </form>
+                <!-- USERNAME -->
+                <div class="relative">
+                    <input type="text" name="username" placeholder="Username"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 outline-none">
+                    
+                    <i class="ph ph-user absolute right-3 top-3 text-gray-400"></i>
                 </div>
 
-            </div>
+                <!-- PASSWORD -->
+                <div class="relative">
+                    <input type="password" name="password" placeholder="Password"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 outline-none">
+                    
+                    <i class="ph ph-lock absolute right-3 top-3 text-gray-400"></i>
+                </div>
 
+                <!-- BUTTON -->
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white py-3 rounded-lg font-medium shadow-md hover:bg-blue-600 hover:shadow-lg transition duration-300">
+                    Masuk
+                </button>
+
+                <p class="text-center text-sm text-gray-500">
+                    Belum punya akun?
+                    <a href="{{ route('HalRegister') }}" class="text-blue-500 font-medium hover:underline">
+                        Daftar
+                    </a>
+                </p>
+
+            </form>
         </div>
+
     </div>
+
+</div>
+
 </body>
 
 </html>

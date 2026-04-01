@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Buku;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,8 +60,8 @@ class AuthController extends Controller
 
             return match ($role) {
                 'anggota' => redirect()->route('anggota.dashboard'),
-                'petugas' => redirect()->route('buku.index'),
-                'kepala_perpustakaan' => redirect()->route('kepala-perpustakaan.dashboard'),
+                'petugas' => redirect()->route('petugasDashboard'),
+                'kepala_perpustakaan' => redirect()->route('kepalaDashboard'),
                 default => back(),
             };
         }
@@ -76,13 +77,14 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/');
     }
 
 
     //halaman login
     public function HalLogin()
     {
+        
         return view('auth.login');
     }
 
@@ -94,6 +96,17 @@ class AuthController extends Controller
 
     public function dashboard()
     {
-        return view('anggota.dashboard');
+        $bukus = Buku::all();
+        return view('anggota.dashboard', compact('bukus'));
+    }
+
+    public function petugasDashboard()
+    {
+        return view('petugas.dashboard');
+    }
+
+    public function kepalaDashboard()
+    {
+        return view('kepala_perpus.dashboard');
     }
 }

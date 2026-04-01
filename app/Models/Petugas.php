@@ -10,7 +10,12 @@ class Petugas extends Model
     protected $guarded = [];
 
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function peminjaman()
+    {
+        return $this->hasMany(PeminjamanBuku::class);
+    }
 }
