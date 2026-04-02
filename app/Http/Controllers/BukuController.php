@@ -48,7 +48,7 @@ class BukuController extends Controller
     }
 
     public function update(Request $request, Buku $buku)
-    {
+    {   
         $validated = $request->validate([
             'kode_buku'    => 'required|unique:bukus,kode_buku,' . $buku->id,
             'judul_buku'   => 'required',

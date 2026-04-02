@@ -29,14 +29,7 @@ class AuthController extends Controller
                 'role' => 'anggota'
             ]);
 
-            $year = date('Y');
-
-            $last = \App\Models\Anggota::whereYear('created_at', $year)->count() + 1;
-
-            $nomorInduk = 'AGT-' . $year . '-' . str_pad($last, 4, '0', STR_PAD_LEFT);
-
             $user->anggota()->create([
-                'nomor_induk' => $nomorInduk,
                 'max_pinjam' => 3,
                 'jumlah_pinjam_aktif' => 0
             ]);

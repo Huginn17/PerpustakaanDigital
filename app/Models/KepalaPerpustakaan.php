@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class KepalaPerpustakaan extends Model
 {
-    protected $table = 'kepala_perpustakaan';
+    protected $table = 'kepala_perpustakaans';
     protected $guarded = [];
     public function user()
 {

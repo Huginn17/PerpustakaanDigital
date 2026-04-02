@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('kepala_perpustakaans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('nama_kepala')->nullable();
+            $table->string('nama_lengkap')->nullable();
             $table->string('nomor_induk')->nullable();
             $table->string('jenis_kelamin')->nullable();
             $table->date('tanggal_lahir')->nullable();

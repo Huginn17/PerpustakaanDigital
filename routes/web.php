@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\KepalaPerpusController;
 use App\Http\Controllers\PeminjamanBukuController;
+use App\Http\Controllers\PenggunaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/welcome', function () {
@@ -28,6 +29,17 @@ Route::controller(KepalaPerpusController::class)->group(function () {
     Route::put('/kepala/buku/{buku}','update')->name('kepala.buku.update');
     Route::delete('/kepala/buku/{buku}', 'destroy')->name('kepala.buku.destroy');
 });
+
+//Pengguna Controller
+Route::controller(PenggunaController::class)->group(function () {
+    Route::get('/kepala/pengguna', 'index')->name('kepala.pengguna.index');
+    Route::get('/kepala/pengguna/create', 'create')->name('kepala.pengguna.create');
+    Route::post('/kepala/pengguna', 'store')->name('kepala.pengguna.store');
+    Route::get('/kepala/pengguna/{pengguna}/edit', 'edit')->name('kepala.pengguna.edit');
+    Route::put('/kepala/pengguna/{id}', 'update')->name('kepala.pengguna.update');
+    Route::delete('/kepala/pengguna/{id}', 'delete_pengguna')->name('kepala.pengguna.destroy');
+});
+
 
 //Auth Controllers
 Route::controller(AuthController::class)->group(function () {
