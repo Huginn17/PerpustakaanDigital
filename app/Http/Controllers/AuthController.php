@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buku;
+use App\Models\PeminjamanBuku;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:3',
+            'password' => 'required|min:3|confirmed',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -35,7 +36,7 @@ class AuthController extends Controller
             ]);
         });
 
-        return redirect('/')->with('success', 'Register berhasil');
+        return redirect()->route('login')->with('success', 'Register berhasil');
     }
 
     //Login
@@ -70,14 +71,14 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 
 
     //halaman login
     public function HalLogin()
     {
-        
+
         return view('auth.login');
     }
 
@@ -93,9 +94,18 @@ class AuthController extends Controller
         return view('anggota.dashboard', compact('bukus'));
     }
 
+    public function detailBuku($id)
+    {
+        $buku = Buku::findOrFail($id);
+        return view('anggota.daftarBuku.detail', compact('buku'));
+    }
+
     public function petugasDashboard()
     {
-        return view('petugas.dashboard');
+        $peminjaman = PeminjamanBuku::with(['buku', 'anggota'])
+            ->where('status', 'pending')
+            ->get();
+        return view('petugas.dashboard', compact('peminjaman'));
     }
 
     public function kepalaDashboard()

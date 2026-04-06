@@ -1,5 +1,4 @@
 @extends('kepala_perpus.layout.index')
-
 @section('kepala_content')
 <div class="p-6 sm:ml-64 min-h-screen bg-gray-50/50">
     <div class="mb-8 flex items-center justify-between">
@@ -33,7 +32,7 @@
             @method('PUT')
 
             @php
-                $relasi = $user->anggota ?? ($user->petugas ?? $user->kepala_perpustakaans);
+                $relasi = $user->anggota ?? ($user->petugas ?? $user->kepala_perpustakaan);
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -59,7 +58,7 @@
                     <div class="group">
                         <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-blue-500 transition">Password</label>
                         <input type="password" name="password" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all" placeholder="••••••••">
+                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all" placeholder="...">
                         <p class="text-xs text-gray-400 mt-1 italic">*Kosongkan jika tidak ingin mengubah password</p>
                     </div>
 
@@ -101,7 +100,7 @@
                         </div>
                         <div class="group">
                             <label class="block text-sm font-medium text-gray-600 mb-1">Tgl Lahir</label>
-                            <input type="date" name="tanggal_lahir" value="{{ $relasi->tanggal_lahir ?? '' }}" 
+                            <input type="date" name="tanggal_lahir" value="{{ $relasi->tanggal_lahir ?? '-' }}" 
                                 class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all">
                         </div>
                     </div>
@@ -109,7 +108,7 @@
                     <div class="group">
                         <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-green-500 transition">Alamat</label>
                         <textarea name="alamat" rows="3" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all resize-none" placeholder="Alamat domisili...">{{ $relasi->alamat ?? '' }}</textarea>
+                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all resize-none" placeholder="Alamat domisili...">{{ $relasi->alamat ?? '-' }}</textarea>
                     </div>
                 </div>
             </div>

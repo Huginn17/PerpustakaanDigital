@@ -93,9 +93,9 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="relative group">
                                 <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-1 block">Nomor Induk</label>
-                                <input type="number" name="nomer_induk" placeholder="12345..."
+                                <input type="number" name="nomor_induk" placeholder="12345..."
                                     class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-purple-400 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-semibold text-gray-700 shadow-sm"
-                                    value="{{ old('nomer_induk') }}">
+                                    value="{{ old('nomor_induk') }}">
                             </div>
                             <div class="relative group">
                                 <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-1 block">Gender</label>

@@ -7,6 +7,7 @@ use App\Models\PeminjamanBuku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PeminjamanBukuController extends Controller
 {
@@ -24,7 +25,7 @@ class PeminjamanBukuController extends Controller
         $user = Auth::user();
         if (!$user->anggota) {
             return back()->with('error', 'sepertinya kamu bukan anggota, silahkan daftar terlebih dahulu untuk bisa meminjam buku!');
-        }   
+        }
         $anggota_id = Auth::user()->Anggota->id;
 
 
@@ -57,5 +58,79 @@ class PeminjamanBukuController extends Controller
         ]);
 
         return back()->with('success', 'selamat, pengajuan buku berhasil silahkan menunggu konfirmasi..');
+    }
+
+
+
+    public function setujui(Request $request, $id)
+    {
+        $request->validate([
+            'tanggal_jatuh_tempo' => 'required|date|after:today'
+        ]);
+
+        try {
+            DB::transaction(function () use ($id, $request) {
+
+                $peminjaman = PeminjamanBuku::with(['buku', 'anggota'])
+                    ->lockForUpdate()
+                    ->findOrFail($id);
+
+                if ($peminjaman->status !== 'pending') {
+                    throw new \Exception('Status tidak valid!');
+                }
+
+                if ($peminjaman->buku->stock_buku <= 0) {
+                    throw new \Exception('Stok buku habis!');
+                }
+
+                if ($peminjaman->anggota->jumlah_pinjam_aktif >= $peminjaman->anggota->max_pinjam) {
+                    throw new \Exception('Maksimal peminjaman tercapai!');
+                }
+
+                $peminjaman->update([
+                    'status' => 'dipinjam',
+                    'tanggal_pinjam' => now(),
+                    'tanggal_jatuh_tempo' => $request->tanggal_jatuh_tempo,
+                    'petugas_id' => auth()->user()->petugas->id
+                ]);
+
+                $peminjaman->buku->decrement('stock_buku');
+                $peminjaman->anggota->increment('jumlah_pinjam_aktif');
+            });
+
+            return back()->with('success', 'Peminjaman disetujui');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+
+    public function tolak(Request $request, $id)
+    {
+        $request->validate([
+            'alasan' => 'nullable|string|max:255'
+        ]);
+
+        try {
+            DB::transaction(function () use ($id, $request) {
+
+                $peminjaman = PeminjamanBuku::lockForUpdate()->findOrFail($id);
+
+                // validasi status
+                if ($peminjaman->status !== 'pending') {
+                    throw new \Exception('Status tidak valid!');
+                }
+
+                $peminjaman->update([
+                    'status' => 'ditolak',
+                    'petugas_id' => auth()->user()->petugas->id,
+                    'alasan_penolakan' => $request->alasan
+                ]);
+            });
+
+            return back()->with('success', 'Pengajuan ditolak');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

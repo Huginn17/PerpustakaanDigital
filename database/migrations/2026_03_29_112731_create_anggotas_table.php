@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('nama_lengkap')->nullable();
-            $table->string('nomor_induk')->unique();
+            $table->string('nomor_induk')->nullable()->unique();
             $table->string('jenis_kelamin')->nullable();
             $table->integer('max_pinjam')->nullable();
             $table->integer('jumlah_pinjam_aktif')->nullable();
+            $table->string('foto_profil')->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
         

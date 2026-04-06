@@ -97,6 +97,14 @@ class PenggunaController extends Controller
     }
 
 
+    public function detail_pengguna(User $user)
+    {
+        return view('kepala_perpus.kelola_pengguna.detail', [
+            "user" => $user
+        ]);
+    }
+
+
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -164,6 +172,7 @@ class PenggunaController extends Controller
             }
         }
 
+        $roleLama = $user->getOriginal('role');
 
         // update user
         $user->update([
@@ -188,7 +197,7 @@ class PenggunaController extends Controller
             'kepala_perpustakaan' => 'kepala_perpustakaan',
         ];
 
-        $roleLama = $user->getOriginal('role');
+
         $roleBaru = $validated['role'];
 
         // hapus relasi lama jika role berubah
@@ -199,8 +208,8 @@ class PenggunaController extends Controller
             }
         }
 
-        // ambil / buat relasi baru
-        $user->load(['anggota', 'petugas', 'kepala_perpustakaan']);
+        // refresh user untuk mengambil relasi baru
+        $user->refresh();
 
         $relasiNama = $relasiMap[$roleBaru];
 
@@ -213,8 +222,10 @@ class PenggunaController extends Controller
             'alamat'         => $validated['alamat'],
         ];
 
-        if ($user->$relasiNama) {
-            $user->$relasiNama->update($dataRelasi);
+        $relasi = $user->$relasiNama;
+
+        if ($relasi) {
+            $relasi->update($dataRelasi);
         } else {
             $user->$relasiNama()->create($dataRelasi);
         }

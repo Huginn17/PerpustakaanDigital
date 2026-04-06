@@ -15,18 +15,18 @@ class RoleMiddleware
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, $role)
     {
-        if (Auth::check()) {
-            $user = Auth::user();
+        $user = Auth::user();
 
-            if ($user->anggota) {
-                return redirect()->route('anggota.dashboard');
-            } elseif ($user->petugas) {
-                return redirect()->route('petugas.dashboard');
-            } elseif ($user->kepala_perpustakaan) {
-            return redirect()->route('kepala-perpustakaan.dashboard');
-            }
+        if ($user->role !== $role) {
+
+            return match ($user->role) {
+                'anggota' => redirect()->route('anggota.dashboard'),
+                'petugas' => redirect()->route('petugasDashboard'),
+                'kepala_perpustakaan' => redirect()->route('kepalaDashboard'),
+                default => redirect('/login'),
+            };
         }
 
         return $next($request);

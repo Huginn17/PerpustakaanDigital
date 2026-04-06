@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('petugas_id')->nullable()->constrained('petugas')->onDelete('cascade');
             $table->date('tanggal_pinjam')->nullable();
             $table->date('tanggal_jatuh_tempo')->nullable();
+            $table->text('alasan_penolakan')->nullable();
             $table->enum('status', ['dipinjam', 'dikembalikan', 'pending', 'ditolak'])->default('pending');
 
             $table->timestamps();
