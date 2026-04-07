@@ -108,6 +108,54 @@ class AuthController extends Controller
         return view('petugas.dashboard', compact('peminjaman'));
     }
 
+    public function pengajuanPengembalian()
+    {
+        $data = PeminjamanBuku::with(['user', 'buku'])
+            ->where('status', 'menunggu_konfirmasi')
+            ->latest()
+            ->get();
+
+        return view('petugas.peminjaman.index', compact('data'));
+    }
+
+    public function ajukanPengembalianPage()
+    {
+        $anggota = auth()->user()->anggota;
+
+        if (!$anggota) {
+            abort(403, 'Data anggota tidak ditemukan');
+        }
+
+        $data = PeminjamanBuku::with('buku')
+            ->where('anggota_id', $anggota->id)
+            ->where('status', 'dipinjam')
+            ->latest()
+            ->get();
+
+        return view('anggota.pengembalian.index', compact('data'));
+    }
+
+
+    //Proses pengajuan pengembalian
+    public function ajukanPengembalian($id)
+    {
+        $anggota = auth()->user()->anggota;
+
+        if (!$anggota) {
+            abort(403, 'Data anggota tidak ditemukan');
+        }
+
+        $peminjaman = PeminjamanBuku::where('anggota_id', $anggota->id)
+            ->where('status', 'dipinjam')
+            ->findOrFail($id);
+
+        $peminjaman->update([
+            'status' => 'menunggu_konfirmasi'
+        ]);
+
+        return back()->with('success', 'Pengajuan pengembalian berhasil dikirim');
+    }
+
     public function kepalaDashboard()
     {
         return view('kepala_perpus.dashboard');

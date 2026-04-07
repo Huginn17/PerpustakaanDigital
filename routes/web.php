@@ -3,7 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\KepalaPerpusController;
+use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PeminjamanBukuController;
+use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\ProfileController;
 // use App\Http\Middleware\RoleMiddleware;
@@ -55,6 +57,35 @@ Route::prefix('/kepala')->middleware(['auth', 'role:kepala_perpustakaan'])->grou
         Route::get('/pengguna/{user}/detail', 'detail_pengguna')->name('kepala.pengguna.detail');
     });
 });
+
+Route::post('/peminjaman/{id}/proses', [PengembalianController::class, 'prosesPengembalian'])
+    ->name('peminjaman.proses');
+
+
+Route::get('/petugas/pengajuan-pengembalian', [AuthController::class, 'pengajuanPengembalian'])
+    ->name('peminjaman.pengajuan');
+
+Route::get('/petugas/{id}/pengembalian', [PengembalianController::class, 'formPengembalian'])
+    ->name('peminjaman.pengembalian.form');
+
+// 🔹 proses pengembalian
+Route::post('/petugas/{id}/kembalikan', [PengembalianController::class, 'pengembalian'])
+    ->name('peminjaman.kembalikan');
+
+// 🔹 halaman pembayaran
+Route::get('/petugas/{id}/pembayaran', [PembayaranController::class, 'formPembayaran']) //ada
+    ->name('peminjaman.pembayaran.form');
+
+// 🔹 proses pembayaran
+Route::post('/{id}/bayar', [PembayaranController::class, 'bayarDenda']) //ada
+    ->name('peminjaman.bayar');
+
+
+Route::get('/ajukan-pengembalian', [AuthController::class, 'ajukanPengembalianPage'])
+    ->name('peminjaman.ajukan.page');
+
+Route::post('/{id}/ajukan', [AuthController::class, 'ajukanPengembalian'])
+    ->name('peminjaman.ajukan');
 
 
 //Auth Controllers
