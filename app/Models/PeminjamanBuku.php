@@ -34,7 +34,7 @@ class PeminjamanBuku extends Model
 
     public function dendas()
     {
-        return $this->hasMany(Denda::class);
+        return $this->hasMany(Denda::class, 'peminjaman_id');
     }
 
     public function pembayaran()

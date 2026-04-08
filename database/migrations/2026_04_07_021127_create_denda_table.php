@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('tingkat_kerusakan', ['ringan','sedang','berat'])->nullable();
             $table->decimal('nominal', 12, 2)->nullable();
             $table->text('keterangan')->nullable();
-            //status denda
+            //status denda  
             $table->enum('status', ['aktif', 'dibatalkan'])->default('aktif');
             $table->foreignId('denda_parent_id')->nullable()->constrained('denda')->nullOnDelete();
             $table->timestamps();

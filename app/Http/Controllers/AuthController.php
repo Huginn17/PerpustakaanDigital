@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\PeminjamanBuku;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -111,11 +112,21 @@ class AuthController extends Controller
     public function pengajuanPengembalian()
     {
         $data = PeminjamanBuku::with(['user', 'buku'])
-            ->where('status', 'menunggu_konfirmasi')
+            ->whereIn('status', ['menunggu_konfirmasi', 'menunggu_pembayaran'])
             ->latest()
             ->get();
 
-        return view('petugas.peminjaman.index', compact('data'));
+        $Data = PeminjamanBuku::with(['buku', 'anggota', 'dendas'])
+            ->where('status', 'dikembalikan')
+            ->whereHas('dendas', function ($q) {
+                $q->where('jenis', 'hilang');
+            })
+            ->latest()
+            ->get();
+
+        $setting = Setting::first();
+
+        return view('petugas.peminjaman.index', compact('data', 'Data', 'setting'));
     }
 
     public function ajukanPengembalianPage()

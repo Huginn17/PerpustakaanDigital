@@ -8,12 +8,17 @@ use App\Http\Controllers\PeminjamanBukuController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
 // use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/welcome', function () {
     return view('welcome');
 });
+
+
+Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
 
 //Buku Controller
 Route::controller(BukuController::class)->group(function () {
@@ -57,6 +62,11 @@ Route::prefix('/kepala')->middleware(['auth', 'role:kepala_perpustakaan'])->grou
         Route::get('/pengguna/{user}/detail', 'detail_pengguna')->name('kepala.pengguna.detail');
     });
 });
+
+Route::get('/refund/{id}', [PembayaranController::class, 'formRefund'])->name('refund.form');
+Route::post('/refund/{id}', [PembayaranController::class, 'prosesRefund'])->name('refund.proses');
+Route::get('/pembayaran/{id}', [PembayaranController::class, 'showPembayaran'])->name('pembayaran.show');
+Route::post('/pembayaran/{id}', [PembayaranController::class, 'prosesPembayaran'])->name('pembayaran.proses');
 
 Route::post('/peminjaman/{id}/proses', [PengembalianController::class, 'prosesPengembalian'])
     ->name('peminjaman.proses');

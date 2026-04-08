@@ -3,173 +3,467 @@
 @section('petugas')
     <div class="p-6 sm:ml-64">
 
-        <h2 class="text-2xl font-bold mb-6">
-            Pengajuan Pengembalian Buku
-        </h2>
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-2">
+                Pengajuan <span class="text-orange-500">Pengembalian Buku</span>
+            </h2>
+            <p class="text-gray-500 mb-8">Kelola data pengembalian dan pantau status keterlambatan anggota.</p>
 
-        {{-- ALERT --}}
-        @if (session('success'))
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-                {{ session('success') }}
+            {{-- ALERT --}}
+            @if (session('success'))
+                <div
+                    class="flex items-center bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded-xl shadow-sm mb-6 animate-fade-in">
+                    <svg class="h-5 w-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="bg-white rounded-3xl shadow-xl shadow-orange-100/50 overflow-hidden border border-orange-50">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-orange-500 to-amber-400 text-white">
+                                <th class="p-5 font-bold uppercase text-xs tracking-wider">No</th>
+                                <th class="p-5 font-bold uppercase text-xs tracking-wider">Informasi Peminjam</th>
+                                <th class="p-5 font-bold uppercase text-xs tracking-wider">Buku</th>
+                                <th class="p-5 font-bold uppercase text-xs tracking-wider">Masa Pinjam</th>
+                                <th class="p-5 font-bold uppercase text-xs tracking-wider text-center">Status & Durasi</th>
+                                <th class="p-5 font-bold uppercase text-xs tracking-wider text-center">Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach ($data as $i => $p)
+                                <tr class="hover:bg-orange-50/30 transition-colors group">
+                                    <td class="p-5 text-gray-400 font-medium">{{ $i + 1 }}</td>
+                                    <td class="p-5">
+                                        <div class="flex items-center">
+                                            <div
+                                                class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold mr-3 border border-orange-200">
+                                                {{ substr($p->anggota->nama_lengkap ?? $p->anggota->user->username, 0, 1) }}
+                                            </div>
+                                            <div class="font-bold text-gray-700">
+                                                {{ $p->anggota->nama_lengkap ?? $p->anggota->user->username }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-5">
+                                        <span class="block font-semibold text-gray-700">{{ $p->buku->judul_buku }}</span>
+                                        <span class="text-[11px] text-gray-400 italic">ID: #BK-{{ $p->buku->id }}</span>
+                                    </td>
+                                    <td class="p-5 text-sm text-gray-600">
+                                        <div class="flex flex-col">
+                                            <span>Pinjam: <b>{{ $p->tanggal_pinjam }}</b></span>
+                                            <span class="text-orange-400">Tempo: <b>{{ $p->tanggal_jatuh_tempo }}</b></span>
+                                        </div>
+                                    </td>
+
+                                    {{-- STATUS BADGE --}}
+                                    <td class="p-5 text-center">
+                                        @php
+                                            $today = now()->startOfDay();
+                                            $jatuhTempo = \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
+                                        @endphp
+
+                                        @if ($today->gt($jatuhTempo))
+                                            @php $terlambat = (int) $jatuhTempo->diffInDays($today); @endphp
+                                            <div
+                                                class="inline-flex flex-col items-center bg-red-50 px-4 py-2 rounded-2xl border border-red-100">
+                                                <span
+                                                    class="text-red-600 font-black text-xs uppercase tracking-tighter">Terlambat
+                                                    {{ $terlambat }} Hari</span>
+                                                <span
+                                                    class="text-[10px] text-red-400 font-medium">{{ $jatuhTempo->format('d M Y') }}</span>
+                                            </div>
+                                        @elseif ($today->equalTo($jatuhTempo))
+                                            <div
+                                                class="inline-flex flex-col items-center bg-amber-50 px-4 py-2 rounded-2xl border border-amber-200">
+                                                <span
+                                                    class="text-amber-600 font-black text-xs uppercase tracking-tighter">Hari
+                                                    Ini!</span>
+                                                <span class="text-[10px] text-amber-500 font-medium">Deadline</span>
+                                            </div>
+                                        @else
+                                            @php $sisa = (int) $today->diffInDays($jatuhTempo); @endphp
+                                            <div
+                                                class="inline-flex flex-col items-center bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
+                                                <span
+                                                    class="text-emerald-600 font-black text-xs uppercase tracking-tighter">{{ $sisa }}
+                                                    Hari Lagi</span>
+                                                <span class="text-[10px] text-emerald-400 font-medium">Aman</span>
+                                            </div>
+                                        @endif
+                                    </td>
+
+                                    <td class="p-5 text-center">
+                                        @if ($p->status == 'dipinjam' || $p->status == 'menunggu_konfirmasi')
+                                            <button
+                                                onclick="openModal(
+    {{ $p->id }},
+    '{{ $p->buku->judul_buku }}',
+    '{{ $p->anggota->nama_lengkap }}',
+    '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}',
+    '{{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('Y-m-d') }}'
+)"
+                                                class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-orange-200 active:scale-95">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                </svg>
+                                                Proses
+                                            </button>
+                                        @elseif($p->status == 'menunggu_pembayaran')
+                                            <a href="{{ route('pembayaran.show', $p->id) }}"
+                                                class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Bayar
+                                            </a>
+                                        @elseif($p->status == 'dikembalikan')
+                                            <div
+                                                class="inline-flex items-center gap-1 text-emerald-500 font-bold bg-emerald-50 px-3 py-1 rounded-full text-xs">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                                    fill="currentColor">
+                                                    <path fill-rule="evenodd"
+                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                                Selesai
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        @endif
+        </div>
 
-        @if (session('error'))
-            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
-                {{ session('error') }}
-            </div>
-        @endif
 
-        <div class="bg-white shadow rounded-xl overflow-hidden">
 
-            <table class="w-full text-sm">
-                <thead class="bg-gray-100 text-left">
+        {{-- <div class="p-6 bg-white rounded-xl shadow">
+
+            <h2 class="text-xl font-bold mb-4">Data Buku Hilang (Sudah Lunas)</h2>
+
+            <table class="w-full border text-sm">
+                <thead class="bg-gray-100">
                     <tr>
-                        <th class="p-3">No</th>
-                        <th class="p-3">Nama</th>
-                        <th class="p-3">Buku</th>
-                        <th class="p-3">Tgl Pinjam</th>
-                        <th class="p-3">Jatuh Tempo</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3 text-center">Aksi</th>
+                        <th class="p-2 border">No</th>
+                        <th class="p-2 border">Nama Buku</th>
+                        <th class="p-2 border">Anggota</th>
+                        <th class="p-2 border">Total Denda</th>
+                        <th class="p-2 border">Total Bayar</th>
+                        <th class="p-2 border">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    @foreach ($data as $i => $p)
-                        <tr class="border-t">
-                            <td class="p-3">{{ $i + 1 }}</td>
-                            <td class="p-3">{{ $p->anggota->nama_lengkap ?? $p->anggota->user->username }}</td>
-                            <td class="p-3">{{ $p->buku->judul_buku }}</td>
-                            <td class="p-3">{{ $p->tanggal_pinjam }}</td>
-                            <td class="p-3">{{ $p->tanggal_jatuh_tempo }}</td>
+                    @forelse($Data as $i => $item)
+                        @php
+                            $totalDenda = $item->dendas->sum('nominal');
 
-                            {{-- STATUS TERLAMBAT --}}
-                            <td class="p-3">
-                                @php
-                                    $terlambat = now()->diffInDays($p->tanggal_jatuh_tempo, false);
-                                @endphp
+                            $totalBayarKotor = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
+                                ->where('tipe', 'bayar')
+                                ->sum('nominal');
 
-                                @if ($terlambat > 0)
-                                    <span class="text-red-500 font-semibold">
-                                        Terlambat {{ $terlambat }} hari
-                                    </span>
-                                @else
-                                    <span class="text-green-500">
-                                        Tidak terlambat
-                                    </span>
+                            $totalRefund = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
+                                ->where('tipe', 'refund')
+                                ->sum('nominal');
+
+                            $totalBayar = $totalBayarKotor - $totalRefund;
+                        @endphp
+
+                        <tr class="text-center">
+                            <td class="border p-2">{{ $i + 1 }}</td>
+                            <td class="border p-2">{{ $item->buku->judul_buku ?? '-' }}</td>
+                            <td class="border p-2">{{ $item->anggota->nama_lengkap ?? $item->anggota->user->username }}
+                            </td>
+
+                            <td class="border p-2 text-red-500">
+                                Rp {{ number_format($totalDenda, 0, ',', '.') }}
+                            </td>
+
+                            <td class="border p-2 text-green-600">
+                                Rp {{ number_format($totalBayarKotor, 0, ',', '.') }}
+
+                                @if ($totalRefund > 0)
+                                    <div class="text-xs text-yellow-600">
+                                        Refund: -Rp {{ number_format($totalRefund, 0, ',', '.') }}
+                                    </div>
+                                    <div class="text-xs text-blue-600">
+                                        Bersih: Rp {{ number_format($totalBayar, 0, ',', '.') }}
+                                    </div>
                                 @endif
                             </td>
 
-                            <td class="p-3 text-center">
-                                <button onclick="openModal({{ $p->id }})"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
-                                    Proses
-                                </button>
+                            <td class="border p-2">
+                                <a href="{{ route('refund.form', $item->id) }}"
+                                    class="bg-yellow-500 text-white px-3 py-1 rounded">
+                                    Refund
+                                </a>
                             </td>
                         </tr>
-                    @endforeach
+
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center p-3">Tidak ada data</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
 
-        </div>
-    </div>
+        </div> --}}
 
-    {{-- MODAL --}}
-    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
-        <div class="bg-white p-6 rounded-xl w-full max-w-lg shadow-lg">
 
-            <h2 class="text-xl font-bold mb-4">Proses Pengembalian</h2>
 
-            <button onclick="closeModal()" class="text-red-500 mb-3 text-sm">
-                ✖ Tutup
-            </button>
 
-            <form id="formPengembalian" method="POST">
-                @csrf
+        <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6">
+            <div class="fixed inset-0 bg-orange-950/40 backdrop-blur-sm transition-opacity"></div>
 
-                {{-- KONDISI --}}
-                <label class="block font-semibold mb-1">Kondisi Buku</label>
-                <select name="kondisi" id="kondisi" class="w-full border p-2 rounded mb-3">
-                    <option value="normal">Normal</option>
-                    <option value="rusak">Rusak</option>
-                    <option value="hilang">Hilang</option>
-                </select>
+            <div
+                class="relative bg-white rounded-[1.5rem] shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-orange-100">
 
-                {{-- RUSAK --}}
-                <div id="rusakSection" class="hidden">
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-6 text-white relative">
+                    <h2 class="text-xl font-bold tracking-tight">Proses Pengembalian</h2>
+                    <p class="text-orange-100 text-xs opacity-90">Selesaikan administrasi dengan teliti.</p>
 
-                    <label class="block font-semibold mb-1">Tingkat Kerusakan</label>
-                    <select name="tingkat_kerusakan" class="w-full border p-2 rounded mb-3">
-                        <option value="ringan">Ringan</option>
-                        <option value="sedang">Sedang</option>
-                        <option value="berat">Berat</option>
-                    </select>
-
+                    <button onclick="closeModal()"
+                        class="absolute top-5 right-5 bg-white/20 hover:bg-white/40 p-1.5 rounded-full transition-all group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:rotate-90 transition-transform"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
 
-                {{-- INFO DENDA --}}
-                <div id="dendaInfo" class="text-sm text-red-500 mb-3"></div>
+                <div class="p-6">
+                    {{-- INFO DATA - Grid tetap 2 kolom namun teks lebih rapat --}}
+                    <div
+                        class="bg-orange-50/50 border border-orange-100 p-4 rounded-xl mb-5 grid grid-cols-2 gap-y-2 gap-x-3 text-xs">
+                        <div class="col-span-2 border-b border-orange-100 pb-1 mb-1">
+                            <p class="text-[9px] uppercase tracking-widest text-orange-400 font-bold">Detail Peminjam</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-[10px]">Nama</p>
+                            <p id="m_nama" class="font-semibold text-gray-700 truncate">-</p>
+                        </div>
 
-                {{-- PEMBAYARAN --}}
-                <label class="block font-semibold mb-1">Nominal Bayar</label>
-                <input type="number" name="nominal" id="nominal" class="w-full border p-2 rounded mb-2"
-                    placeholder="Masukkan uang">
+                        <script>
+                            const DENDA_PER_HARI = {{ $setting->denda_per_hari ?? 10000 }};
+                        </script>
+                        <div>
+                            <p class="text-gray-400 text-[10px]">Buku</p>
+                            <p id="m_buku" class="font-semibold text-gray-700 truncate">-</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-[10px]">Tgl Pinjam</p>
+                            <p id="m_pinjam" class="font-semibold text-gray-700">-</p>
+                        </div>
+                        <div>
+                            <p class="text-red-300 text-[10px]">Jatuh Tempo</p>
+                            <p id="m_jatuh" class="font-semibold text-red-500">-</p>
+                        </div>
+                        <div
+                            class="col-span-2 pt-2 border-t border-orange-100 flex justify-between items-center text-[11px]">
+                            <span class="text-gray-400 italic" id="m_status">Status</span>
+                            <span class="text-orange-600 font-bold" id="m_denda">Rp 0</span>
+                        </div>
+                    </div>
 
-                <div id="infoBayar" class="text-sm mb-3"></div>
+                    <form id="formPengembalian" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="hidden" name="total_denda" id="inputTotalDenda">
 
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full">
-                    Simpan
-                </button>
+                        {{-- KONDISI --}}
+                        <div class="space-y-1">
+                            <label class="block font-bold text-gray-600 text-xs ml-1">Kondisi Buku</label>
+                            <select name="kondisi" id="kondisi"
+                                class="w-full bg-gray-50 border-2 border-gray-100 focus:border-orange-400 focus:ring-0 p-2.5 rounded-lg text-sm transition-all outline-none cursor-pointer">
+                                <option value="normal">✨ Normal / Baik</option>
+                                <option value="rusak">⚠️ Rusak</option>
+                                <option value="hilang">❌ Hilang</option>
+                            </select>
+                        </div>
 
-            </form>
+                        {{-- RUSAK SECTION --}}
+                        <div id="rusakSection" class="hidden animate-fade-in space-y-1">
+                            <label class="block font-bold text-gray-600 text-xs ml-1">Tingkat Kerusakan</label>
+                            <select name="tingkat_kerusakan"
+                                class="w-full bg-orange-50 border-2 border-orange-200 p-2.5 rounded-lg text-sm outline-none text-orange-800">
+                                <option value="ringan">Ringan</option>
+                                <option value="sedang">Sedang</option>
+                                <option value="berat">Berat</option>
+                            </select>
+                        </div>
 
+                        {{-- INPUT DENDA --}}
+                        <div id="kerusakanInput" class="hidden animate-fade-in space-y-1">
+                            <label class="block font-bold text-gray-600 text-xs ml-1">Biaya Tambahan</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-gray-400 text-sm">Rp</span>
+                                <input type="number" name="denda_kerusakan" id="dendaKerusakan"
+                                    class="w-full bg-gray-50 border-2 border-gray-100 focus:border-orange-400 p-2.5 pl-10 rounded-lg text-sm outline-none"
+                                    placeholder="0">
+                            </div>
+                        </div>
+
+                        {{-- TOTAL PANEL: Dibuat lebih tipis --}}
+                        <div class="bg-gray-900 rounded-xl p-4 flex justify-between items-center shadow-md">
+                            <div class="text-gray-400 text-[10px] uppercase tracking-wider">Total Bayar</div>
+                            <div class="text-white text-lg font-bold italic" id="totalDenda">Rp 0</div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.97] text-white font-bold py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm">
+                            Simpan Data
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        <style>
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
 
-            window.openModal = function(id) {
-                document.getElementById('modal').classList.remove('hidden');
-                document.getElementById('formPengembalian').action =
-                    `/peminjaman/${id}/proses`;
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
 
-            window.closeModal = function() {
-                document.getElementById('modal').classList.add('hidden');
+            .animate-fade-in {
+                animation: fadeIn 0.3s ease-out forwards;
             }
+        </style>
 
-            const kondisi = document.getElementById('kondisi');
-            const rusakSection = document.getElementById('rusakSection');
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
 
-            if (kondisi) {
-                kondisi.addEventListener('change', function() {
-                    if (this.value === 'rusak') {
-                        rusakSection.classList.remove('hidden');
-                    } else {
-                        rusakSection.classList.add('hidden');
-                    }
-                });
-            }
+                let dendaTerlambat = 0;
 
-            const nominalInput = document.getElementById('nominal');
-            const infoBayar = document.getElementById('infoBayar');
+                window.openModal = function(id, buku, nama, tglPinjam, jatuhTempo) {
 
-            if (nominalInput) {
-                nominalInput.addEventListener('input', function() {
-                    let bayar = parseInt(this.value) || 0;
+                    document.getElementById('modal').classList.remove('hidden');
+                    document.getElementById('formPengembalian').action =
+                        `/peminjaman/${id}/proses`;
 
-                    if (bayar <= 0) {
-                        infoBayar.innerHTML = "";
+                    // isi data
+                    document.getElementById('m_buku').innerText = buku;
+                    document.getElementById('m_nama').innerText = nama;
+                    document.getElementById('m_pinjam').innerText = tglPinjam;
+                    document.getElementById('m_jatuh').innerText = jatuhTempo;
+
+                    // reset
+                    document.getElementById('kondisi').value = 'normal';
+                    document.getElementById('dendaKerusakan').value = '';
+                    document.getElementById('inputTotalDenda').value = 0;
+
+                    document.getElementById('rusakSection').classList.add('hidden');
+                    document.getElementById('kerusakanInput').classList.add('hidden');
+
+                    let today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    let jatuh = new Date(jatuhTempo);
+                    jatuh.setHours(0, 0, 0, 0);
+
+                    console.log("Jatuh tempo:", jatuhTempo);
+                    console.log("Denda setting:", DENDA_PER_HARI);
+
+                    if (isNaN(jatuh.getTime())) {
+                        document.getElementById('m_status').innerHTML =
+                            `<span class="text-red-500">Format tanggal salah</span>`;
                         return;
                     }
 
-                    infoBayar.innerHTML = "Input diterima: Rp " + bayar.toLocaleString();
-                });
-            }
+                    let selisih = Math.floor((today - jatuh) / (1000 * 60 * 60 * 24));
 
-        });
-    </script>
-@endsection
+                    if (selisih > 0) {
+                        dendaTerlambat = selisih * Number(DENDA_PER_HARI);
+
+                        document.getElementById('m_status').innerHTML =
+                            `<span class="text-red-500 font-semibold">Terlambat ${selisih} hari</span>`;
+
+                        document.getElementById('m_denda').innerText =
+                            "Rp " + dendaTerlambat.toLocaleString();
+
+                    } else {
+                        dendaTerlambat = 0;
+
+                        document.getElementById('m_status').innerHTML =
+                            `<span class="text-green-500 font-semibold">Tidak terlambat</span>`;
+
+                        document.getElementById('m_denda').innerText = "Rp 0";
+                    }
+
+                    updateTotal();
+                }
+
+                window.closeModal = function() {
+                    document.getElementById('modal').classList.add('hidden');
+                }
+
+                const kondisi = document.getElementById('kondisi');
+                const rusakSection = document.getElementById('rusakSection');
+                const kerusakanInput = document.getElementById('kerusakanInput');
+                const dendaKerusakan = document.getElementById('dendaKerusakan');
+
+                kondisi.addEventListener('change', function() {
+
+                    if (this.value === 'rusak') {
+                        rusakSection.classList.remove('hidden');
+                        kerusakanInput.classList.remove('hidden');
+
+                    } else if (this.value === 'hilang') {
+                        rusakSection.classList.add('hidden');
+                        kerusakanInput.classList.remove('hidden');
+
+                    } else {
+                        rusakSection.classList.add('hidden');
+                        kerusakanInput.classList.add('hidden');
+                        dendaKerusakan.value = '';
+                    }
+
+                    updateTotal();
+                });
+
+                dendaKerusakan.addEventListener('input', updateTotal);
+
+                function updateTotal() {
+                    let kerusakan = parseInt(dendaKerusakan.value) || 0;
+                    let total = dendaTerlambat + kerusakan;
+
+                    document.getElementById('totalDenda').innerText =
+                        "Rp " + total.toLocaleString();
+
+                    document.getElementById('inputTotalDenda').value = total;
+                }
+
+                document.getElementById('formPengembalian').addEventListener('submit', function(e) {
+
+                    let total = document.getElementById('inputTotalDenda').value;
+
+                    if (total == 0) {
+                        if (!confirm("Tidak ada denda, lanjutkan pengembalian?")) {
+                            e.preventDefault();
+                        }
+                    }
+                });
+
+            });
+        </script>
+    @endsection

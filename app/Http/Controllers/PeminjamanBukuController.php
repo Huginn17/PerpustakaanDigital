@@ -47,8 +47,16 @@ class PeminjamanBukuController extends Controller
 
         // batas pengajuan atau nunggu konfirmasi dulu,
         $batas_pengajuan_pending = PeminjamanBuku::where('anggota_id', $anggota_id)->where('status', 'pending')->count();
-        if ($batas_pengajuan_pending === 2 || $batas_pengajuan_pending >= 2) {
+        if ($batas_pengajuan_pending === 3 || $batas_pengajuan_pending >= 3) {
             return back()->with('error', 'kamu telah mencapai batas pengajuan buku');
+        }
+
+        $dendaBelumBayar = PeminjamanBuku::where('anggota_id', $anggota_id)
+            ->where('status', 'menunggu_pembayaran')
+            ->count();
+
+        if ($dendaBelumBayar > 0) {
+            return back()->with('error', 'Kamu masih memiliki denda yang belum dibayar, silakan selesaikan terlebih dahulu!');
         }
 
         PeminjamanBuku::create([
