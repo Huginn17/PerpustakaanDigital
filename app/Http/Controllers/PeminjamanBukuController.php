@@ -15,6 +15,8 @@ class PeminjamanBukuController extends Controller
     public function index()
     {
         $bukus = Buku::all();
+
+        
         return view('anggota.peminjaman.index', compact('bukus'));
     }
     // Ajukan Pinjaman Buku

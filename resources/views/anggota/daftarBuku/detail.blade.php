@@ -1,6 +1,39 @@
 @extends('anggota.layout.index')
 @section('anggota')
     <div class="p-4 sm:ml-64">
+
+        {{-- ERROR ALERT --}}
+        @if ($errors->any())
+            <div class="max-w-4xl mx-auto mb-4">
+                <div class="bg-red-100 border border-red-300 text-red-700 p-4 rounded-xl">
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
+        {{-- SUCCESS ALERT --}}
+        @if (session('success'))
+            <div class="max-w-4xl mx-auto mb-4">
+                <div class="bg-green-100 border border-green-300 text-green-700 p-4 rounded-xl">
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
+        {{-- ERROR MESSAGE (custom) --}}
+        @if (session('error'))
+            <div class="max-w-4xl mx-auto mb-4">
+                <div class="bg-red-100 border border-red-300 text-red-700 p-4 rounded-xl">
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
+
+
         <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100 mt-10">
             <div class="flex flex-col md:flex-row gap-10">
                 <div class="w-full md:w-1/3">

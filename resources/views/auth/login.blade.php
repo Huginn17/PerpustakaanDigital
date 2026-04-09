@@ -74,7 +74,7 @@
 
                 <!-- USERNAME -->
                 <div class="relative">
-                    <input type="text" name="username" placeholder="Username"
+                    <input type="text" name="login" placeholder="Username atau Email"
                         class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 outline-none">
                     
                     <i class="ph ph-user absolute right-3 top-3 text-gray-400"></i>

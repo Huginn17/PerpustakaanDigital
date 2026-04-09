@@ -54,7 +54,7 @@ class PembayaranController extends Controller
     {
         $request->validate([
             'nominal' => 'required|numeric|min:1',
-            'keterangan' => 'nullable|string'
+            'keterangan' => 'required|string'
         ]);
 
         $peminjaman = PeminjamanBuku::findOrFail($id);

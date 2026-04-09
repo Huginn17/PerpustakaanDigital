@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('tanggal_jatuh_tempo')->nullable();
             $table->date('tanggal_kembalikan')->nullable();
             $table->text('alasan_penolakan')->nullable();
-            $table->enum('status', ['dipinjam', 'dikembalikan','menunggu_konfirmasi', 'pending', 'ditolak'])->default('pending');
+            $table->enum('status', ['dipinjam', 'dikembalikan','menunggu_konfirmasi','', 'pending', 'ditolak'])->default('pending');
 
             $table->timestamps();
         });

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BukuController;
 use App\Http\Controllers\KepalaPerpusController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PeminjamanBukuController;
 use App\Http\Controllers\PengembalianController;
@@ -16,6 +17,8 @@ Route::get('/welcome', function () {
     return view('welcome');
 });
 
+Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
 
 Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
 Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
@@ -109,7 +112,7 @@ Route::controller(AuthController::class)->group(function () {
     // Route::post('/logout', 'logout')->name('logout');
 });
 
-Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('anggota.dashboard')->middleware('auth', 'role:anggota');
+Route::get('/dashboard', [AuthController::class, 'buku'])->name('anggota.buku')->middleware('auth', 'role:anggota');
 Route::get('/buku/{id}/detail', [AuthController::class, 'detailBuku'])->name('anggota.buku.detail')->middleware('auth', 'role:anggota');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');

@@ -2,7 +2,6 @@
 
 @section('petugas')
     <div class="p-6 sm:ml-64">
-
         <div class="max-w-7xl mx-auto px-4 py-8">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-2">
                 Pengajuan <span class="text-orange-500">Pengembalian Buku</span>
@@ -150,79 +149,107 @@
 
 
 
-        {{-- <div class="p-6 bg-white rounded-xl shadow">
+        <div class="max-w-6xl mx-auto my-8">
+            <div class="bg-white rounded-xl shadow-lg border border-orange-100 overflow-hidden">
 
-            <h2 class="text-xl font-bold mb-4">Data Buku Hilang (Sudah Lunas)</h2>
+                <div class="bg-orange-500 p-5 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Data Buku Hilang (Sudah Lunas)
+                    </h2>
+                    <div
+                        class="bg-orange-600 text-orange-100 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                        {{ count($Data) }} Transaksi
+                    </div>
+                </div>
 
-            <table class="w-full border text-sm">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 border">No</th>
-                        <th class="p-2 border">Nama Buku</th>
-                        <th class="p-2 border">Anggota</th>
-                        <th class="p-2 border">Total Denda</th>
-                        <th class="p-2 border">Total Bayar</th>
-                        <th class="p-2 border">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($Data as $i => $item)
-                        @php
-                            $totalDenda = $item->dendas->sum('nominal');
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-orange-50 border-b border-orange-100">
+                                <th class="p-4 text-center text-orange-700 font-bold text-xs uppercase w-16">No</th>
+                                <th class="p-4 text-left text-orange-700 font-bold text-xs uppercase">Informasi Buku &
+                                    Anggota</th>
+                                <th class="p-4 text-center text-orange-700 font-bold text-xs uppercase w-48">Status Bayar
+                                </th>
+                                <th class="p-4 text-left text-orange-700 font-bold text-xs uppercase">Keterangan</th>
+                                <th class="p-4 text-center text-orange-700 font-bold text-xs uppercase w-32">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($Data as $i => $item)
+                                @php
+                                    $totalDenda = $item->dendas->sum('nominal');
+                                    $totalBayarKotor = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
+                                        ->where('tipe', 'bayar')
+                                        ->sum('nominal');
+                                    $totalRefund = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
+                                        ->where('tipe', 'refund')
+                                        ->sum('nominal');
+                                    $totalBayar = $totalBayarKotor - $totalRefund;
+                                @endphp
 
-                            $totalBayarKotor = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
-                                ->where('tipe', 'bayar')
-                                ->sum('nominal');
+                                <tr class="hover:bg-orange-50/30 transition-colors">
+                                    <td class="p-4 text-center text-gray-500 font-medium italic">{{ $i + 1 }}</td>
 
-                            $totalRefund = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
-                                ->where('tipe', 'refund')
-                                ->sum('nominal');
+                                    <td class="p-4">
+                                        <div class="font-bold text-gray-800 text-sm leading-tight">
+                                            {{ $item->buku->judul_buku ?? '-' }}</div>
+                                        <div class="text-xs text-orange-600 mt-1 font-semibold flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            {{ $item->anggota->nama_lengkap ?? $item->anggota->user->username }}
+                                        </div>
+                                    </td>
 
-                            $totalBayar = $totalBayarKotor - $totalRefund;
-                        @endphp
+                                    <td class="p-4">
+                                        <div class="flex flex-col items-center">
+                                            <span class="text-sm font-black text-emerald-600">Rp
+                                                {{ number_format($totalBayarKotor, 0, ',', '.') }}</span>
+                                            @if ($totalRefund > 0)
+                                                <div
+                                                    class="flex flex-col items-center mt-1 pt-1 border-t border-dashed border-orange-200 w-full">
+                                                    <span class="text-[10px] text-red-500 font-bold">Refund:
+                                                        -{{ number_format($totalRefund, 0, ',', '.') }}</span>
+                                                    <span class="text-[10px] text-blue-600 font-black">sisa: Rp
+                                                        {{ number_format($totalBayar, 0, ',', '.') }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </td>
 
-                        <tr class="text-center">
-                            <td class="border p-2">{{ $i + 1 }}</td>
-                            <td class="border p-2">{{ $item->buku->judul_buku ?? '-' }}</td>
-                            <td class="border p-2">{{ $item->anggota->nama_lengkap ?? $item->anggota->user->username }}
-                            </td>
+                                    <td class="p-4 text-[11px] text-gray-500 leading-relaxed italic">
+                                        @foreach ($item->pembayaran as $bayar)
+                                            • {{ $bayar->keterangan }} <br>
+                                        @endforeach
+                                    </td>
 
-                            <td class="border p-2 text-red-500">
-                                Rp {{ number_format($totalDenda, 0, ',', '.') }}
-                            </td>
-
-                            <td class="border p-2 text-green-600">
-                                Rp {{ number_format($totalBayarKotor, 0, ',', '.') }}
-
-                                @if ($totalRefund > 0)
-                                    <div class="text-xs text-yellow-600">
-                                        Refund: -Rp {{ number_format($totalRefund, 0, ',', '.') }}
-                                    </div>
-                                    <div class="text-xs text-blue-600">
-                                        Bersih: Rp {{ number_format($totalBayar, 0, ',', '.') }}
-                                    </div>
-                                @endif
-                            </td>
-
-                            <td class="border p-2">
-                                <a href="{{ route('refund.form', $item->id) }}"
-                                    class="bg-yellow-500 text-white px-3 py-1 rounded">
-                                    Refund
-                                </a>
-                            </td>
-                        </tr>
-
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center p-3">Tidak ada data</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-        </div> --}}
-
-
+                                    <td class="p-4 text-center">
+                                        <a href="{{ route('refund.form', $item->id) }}"
+                                            class="inline-block bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95">
+                                            Refund
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="p-10 text-center text-gray-400 font-medium italic">
+                                        Tidak ada data pembayaran yang ditemukan.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
 
 

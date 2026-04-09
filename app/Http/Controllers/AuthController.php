@@ -43,12 +43,20 @@ class AuthController extends Controller
     //Login
     public function login(Request $request)
     {
-        $valid = $request->validate([
-            "username" => "required",
-            "password" => "required"
+        $request->validate([
+            'login' => 'required',
+            'password' => 'required'
         ]);
 
-        if (Auth::attempt($valid)) {
+        // cek apakah input email atau username
+        $field = filter_var($request->login, FILTER_VALIDATE_EMAIL)
+            ? 'email'
+            : 'username';
+
+        if (Auth::attempt([
+            $field => $request->login,
+            'password' => $request->password
+        ])) {
 
             $user = Auth::user();
             $role = $user->role;
@@ -61,7 +69,7 @@ class AuthController extends Controller
             };
         }
 
-        return back();
+        return back()->with('error', 'Username / Email atau password salah');
     }
 
 
@@ -89,10 +97,10 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function dashboard()
+    public function buku()
     {
         $bukus = Buku::all();
-        return view('anggota.dashboard', compact('bukus'));
+        return view('anggota.peminjaman.index', compact('bukus'));
     }
 
     public function detailBuku($id)
@@ -131,19 +139,32 @@ class AuthController extends Controller
 
     public function ajukanPengembalianPage()
     {
-        $anggota = auth()->user()->anggota;
+        $anggotaId = auth()->user()->anggota->id;
 
-        if (!$anggota) {
+        if (!$anggotaId) {
             abort(403, 'Data anggota tidak ditemukan');
         }
 
+        // semua riwayat
+        $semua = PeminjamanBuku::with('buku')
+            ->where('anggota_id', $anggotaId)
+            ->latest()
+            ->get();
+
+        // sudah dikembalikan
+        $dikembalikan = PeminjamanBuku::with('buku')
+            ->where('anggota_id', $anggotaId)
+            ->where('status', 'dikembalikan')
+            ->latest()
+            ->get();
+
         $data = PeminjamanBuku::with('buku')
-            ->where('anggota_id', $anggota->id)
+            ->where('anggota_id', $anggotaId    )
             ->where('status', 'dipinjam')
             ->latest()
             ->get();
 
-        return view('anggota.pengembalian.index', compact('data'));
+        return view('anggota.pengembalian.index', compact('data', 'semua', 'dikembalikan'));
     }
 
 
