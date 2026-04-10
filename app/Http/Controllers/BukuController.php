@@ -10,8 +10,20 @@ class BukuController extends Controller
 {
     public function index(Request $request)
     {
-        
-        $buku = Buku::all();
+        $query = Buku::query();
+
+        // FILTER STOCK
+        if ($request->filter == 'habis') {
+            $query->where('stock_buku', 0);
+        } elseif ($request->filter == 'menipis') {
+            $query->where('stock_buku', '>', 0)
+                ->where('stock_buku', '<=', 5);
+        } elseif ($request->filter == 'tersedia') {
+            $query->where('stock_buku', '>', 5);
+        }
+
+        $buku = $query->get();
+
         return view('petugas.buku.index', compact('buku'));
     }
 
@@ -48,7 +60,7 @@ class BukuController extends Controller
     }
 
     public function update(Request $request, Buku $buku)
-    {   
+    {
         $validated = $request->validate([
             'kode_buku'    => 'required|unique:bukus,kode_buku,' . $buku->id,
             'judul_buku'   => 'required',
@@ -64,7 +76,7 @@ class BukuController extends Controller
             if ($buku->cover_image && Storage::disk('public')->exists($buku->cover_image)) {
                 Storage::disk('public')->delete($buku->cover_image);
             }
-        } 
+        }
 
         // Upload gambar baru
         if ($request->hasFile('cover_image')) {
@@ -79,10 +91,10 @@ class BukuController extends Controller
     public function destroy(Buku $buku)
     {
 
-    // Hapus gambar lama jika ada
+        // Hapus gambar lama jika ada
         if ($buku->cover_image && Storage::disk('public')->exists($buku->cover_image)) {
-        Storage::disk('public')->delete($buku->cover_image);
-    }
+            Storage::disk('public')->delete($buku->cover_image);
+        }
 
         $buku->delete($buku->id);
 

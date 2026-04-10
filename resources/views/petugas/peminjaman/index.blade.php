@@ -21,234 +21,151 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-3xl shadow-xl shadow-orange-100/50 overflow-hidden border border-orange-50">
+            <div class="bg-white rounded-3xl shadow-xl shadow-orange-100/50 overflow-hidden border border-orange-50 mb-8">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gradient-to-r from-orange-500 to-amber-400 text-white">
-                                <th class="p-5 font-bold uppercase text-xs tracking-wider">No</th>
-                                <th class="p-5 font-bold uppercase text-xs tracking-wider">Informasi Peminjam</th>
-                                <th class="p-5 font-bold uppercase text-xs tracking-wider">Buku</th>
-                                <th class="p-5 font-bold uppercase text-xs tracking-wider">Masa Pinjam</th>
-                                <th class="p-5 font-bold uppercase text-xs tracking-wider text-center">Status & Durasi</th>
-                                <th class="p-5 font-bold uppercase text-xs tracking-wider text-center">Aksi</th>
+                                <th class="p-5 text-xs">No</th>
+                                <th class="p-5 text-xs">Informasi Peminjam</th>
+                                <th class="p-5 text-xs">Buku</th>
+                                <th class="p-5 text-xs">Masa Pinjam</th>
+                                <th class="p-5 text-xs text-center">Status & Durasi</th>
+                                <th class="p-5 text-xs text-center">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody class="divide-y divide-gray-100">
-                            @foreach ($data as $i => $p)
-                                <tr class="hover:bg-orange-50/30 transition-colors group">
-                                    <td class="p-5 text-gray-400 font-medium">{{ $i + 1 }}</td>
-                                    <td class="p-5">
-                                        <div class="flex items-center">
-                                            <div
-                                                class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold mr-3 border border-orange-200">
-                                                {{ substr($p->anggota->nama_lengkap ?? $p->anggota->user->username, 0, 1) }}
+                            @foreach ($prosesDenda as $i => $p)
+                                @if ($p->status == 'dipinjam' || $p->status == 'menunggu_konfirmasi')
+                                    <tr class="hover:bg-orange-50/30 transition-colors group">
+
+                                        <td class="p-5 text-gray-400">{{ $i + 1 }}</td>
+
+                                        <td class="p-5">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold mr-3 border border-orange-200">
+                                                    {{ substr($p->anggota->nama_lengkap ?? $p->anggota->user->username, 0, 1) }}
+                                                </div>
+                                                <div class="font-bold text-gray-700">
+                                                    {{ $p->anggota->nama_lengkap ?? $p->anggota->user->username }}
+                                                </div>
                                             </div>
-                                            <div class="font-bold text-gray-700">
-                                                {{ $p->anggota->nama_lengkap ?? $p->anggota->user->username }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="p-5">
-                                        <span class="block font-semibold text-gray-700">{{ $p->buku->judul_buku }}</span>
-                                        <span class="text-[11px] text-gray-400 italic">ID: #BK-{{ $p->buku->id }}</span>
-                                    </td>
-                                    <td class="p-5 text-sm text-gray-600">
-                                        <div class="flex flex-col">
-                                            <span>Pinjam: <b>{{ $p->tanggal_pinjam }}</b></span>
+                                        </td>
+
+                                        <td class="p-5">
+                                            <span class="font-semibold text-gray-700">{{ $p->buku->judul_buku }}</span>
+                                            <span class="text-[11px] text-gray-400 italic">ID:
+                                                #BK-{{ $p->buku->id }}</span>
+                                        </td>
+
+                                        <td class="p-5 text-sm text-gray-600">
+                                            <span>Pinjam: <b>{{ $p->tanggal_pinjam }}</b></span><br>
                                             <span class="text-orange-400">Tempo: <b>{{ $p->tanggal_jatuh_tempo }}</b></span>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    {{-- STATUS BADGE --}}
-                                    <td class="p-5 text-center">
-                                        @php
-                                            $today = now()->startOfDay();
-                                            $jatuhTempo = \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->startOfDay();
-                                        @endphp
+                                        {{-- STATUS (SAMA PERSIS) --}}
+                                        <td class="p-5 text-center">
+                                            @php
+                                                $today = now()->startOfDay();
+                                                $jatuhTempo = \Carbon\Carbon::parse(
+                                                    $p->tanggal_jatuh_tempo,
+                                                )->startOfDay();
+                                            @endphp
 
-                                        @if ($today->gt($jatuhTempo))
-                                            @php $terlambat = (int) $jatuhTempo->diffInDays($today); @endphp
-                                            <div
-                                                class="inline-flex flex-col items-center bg-red-50 px-4 py-2 rounded-2xl border border-red-100">
-                                                <span
-                                                    class="text-red-600 font-black text-xs uppercase tracking-tighter">Terlambat
-                                                    {{ $terlambat }} Hari</span>
-                                                <span
-                                                    class="text-[10px] text-red-400 font-medium">{{ $jatuhTempo->format('d M Y') }}</span>
-                                            </div>
-                                        @elseif ($today->equalTo($jatuhTempo))
-                                            <div
-                                                class="inline-flex flex-col items-center bg-amber-50 px-4 py-2 rounded-2xl border border-amber-200">
-                                                <span
-                                                    class="text-amber-600 font-black text-xs uppercase tracking-tighter">Hari
-                                                    Ini!</span>
-                                                <span class="text-[10px] text-amber-500 font-medium">Deadline</span>
-                                            </div>
-                                        @else
-                                            @php $sisa = (int) $today->diffInDays($jatuhTempo); @endphp
-                                            <div
-                                                class="inline-flex flex-col items-center bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
-                                                <span
-                                                    class="text-emerald-600 font-black text-xs uppercase tracking-tighter">{{ $sisa }}
-                                                    Hari Lagi</span>
-                                                <span class="text-[10px] text-emerald-400 font-medium">Aman</span>
-                                            </div>
-                                        @endif
-                                    </td>
+                                            @if ($today->gt($jatuhTempo))
+                                                @php $terlambat = (int) $jatuhTempo->diffInDays($today); @endphp
+                                                <span class="text-red-500 font-bold">Terlambat {{ $terlambat }}
+                                                    Hari</span>
+                                            @elseif ($today->equalTo($jatuhTempo))
+                                                <span class="text-amber-500 font-bold">Hari Ini</span>
+                                            @else
+                                                @php $sisa = (int) $today->diffInDays($jatuhTempo); @endphp
+                                                <span class="text-emerald-500 font-bold">{{ $sisa }} Hari
+                                                    Lagi</span>
+                                            @endif
+                                        </td>
 
-                                    <td class="p-5 text-center">
-                                        @if ($p->status == 'dipinjam' || $p->status == 'menunggu_konfirmasi')
+                                        {{-- AKSI (SAMA) --}}
+                                        <td class="p-5 text-center">
                                             <button
                                                 onclick="openModal(
-    {{ $p->id }},
-    '{{ $p->buku->judul_buku }}',
-    '{{ $p->anggota->nama_lengkap }}',
-    '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}',
-    '{{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('Y-m-d') }}'
-)"
-                                                class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-orange-200 active:scale-95">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                                </svg>
+                                        {{ $p->id }},
+                                        '{{ $p->buku->judul_buku }}',
+                                        '{{ $p->anggota->nama_lengkap }}',
+                                        '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}',
+                                        '{{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('Y-m-d') }}'
+                                    )"
+                                                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl">
                                                 Proses
                                             </button>
-                                        @elseif($p->status == 'menunggu_pembayaran')
-                                            <a href="{{ route('pembayaran.show', $p->id) }}"
-                                                class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                </svg>
-                                                Bayar
-                                            </a>
-                                        @elseif($p->status == 'dikembalikan')
-                                            <div
-                                                class="inline-flex items-center gap-1 text-emerald-500 font-bold bg-emerald-50 px-3 py-1 rounded-full text-xs">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                                    fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                                Selesai
-                                            </div>
-                                        @endif
-                                    </td>
-                                </tr>
+                                        </td>
+
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
 
 
-        <div class="max-w-6xl mx-auto my-8">
-            <div class="bg-white rounded-xl shadow-lg border border-orange-100 overflow-hidden">
-
-                <div class="bg-orange-500 p-5 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Data Buku Hilang (Sudah Lunas)
-                    </h2>
-                    <div
-                        class="bg-orange-600 text-orange-100 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
-                        {{ count($Data) }} Transaksi
-                    </div>
-                </div>
-
+            <div class="bg-white rounded-3xl shadow-xl shadow-orange-100/50 overflow-hidden border border-orange-50">
                 <div class="overflow-x-auto">
-                    <table class="w-full border-collapse">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-orange-50 border-b border-orange-100">
-                                <th class="p-4 text-center text-orange-700 font-bold text-xs uppercase w-16">No</th>
-                                <th class="p-4 text-left text-orange-700 font-bold text-xs uppercase">Informasi Buku &
-                                    Anggota</th>
-                                <th class="p-4 text-center text-orange-700 font-bold text-xs uppercase w-48">Status Bayar
-                                </th>
-                                <th class="p-4 text-left text-orange-700 font-bold text-xs uppercase">Keterangan</th>
-                                <th class="p-4 text-center text-orange-700 font-bold text-xs uppercase w-32">Aksi</th>
+                            <tr class="bg-gradient-to-r from-orange-500 to-amber-400 text-white">
+                                <th class="p-5 text-xs">No</th>
+                                <th class="p-5 text-xs">Informasi Peminjam</th>
+                                <th class="p-5 text-xs">Buku</th>
+                                <th class="p-5 text-xs">Masa Pinjam</th>
+                                <th class="p-5 text-xs text-center">Status & Durasi</th>
+                                <th class="p-5 text-xs text-center">Aksi</th>
                             </tr>
                         </thead>
+
                         <tbody class="divide-y divide-gray-100">
-                            @forelse($Data as $i => $item)
-                                @php
-                                    $totalDenda = $item->dendas->sum('nominal');
-                                    $totalBayarKotor = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
-                                        ->where('tipe', 'bayar')
-                                        ->sum('nominal');
-                                    $totalRefund = \App\Models\Pembayaran::where('peminjaman_id', $item->id)
-                                        ->where('tipe', 'refund')
-                                        ->sum('nominal');
-                                    $totalBayar = $totalBayarKotor - $totalRefund;
-                                @endphp
+                            @foreach ($pembayaranDenda as $i => $p)
+                                @if ($p->status == 'menunggu_pembayaran')
+                                    <tr class="hover:bg-orange-50/30">
 
-                                <tr class="hover:bg-orange-50/30 transition-colors">
-                                    <td class="p-4 text-center text-gray-500 font-medium italic">{{ $i + 1 }}</td>
+                                        <td class="p-5 text-gray-400">{{ $i + 1 }}</td>
 
-                                    <td class="p-4">
-                                        <div class="font-bold text-gray-800 text-sm leading-tight">
-                                            {{ $item->buku->judul_buku ?? '-' }}</div>
-                                        <div class="text-xs text-orange-600 mt-1 font-semibold flex items-center gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                            {{ $item->anggota->nama_lengkap ?? $item->anggota->user->username }}
-                                        </div>
-                                    </td>
+                                        <td class="p-5">
+                                            {{ $p->anggota->nama_lengkap ?? $p->anggota->user->username }}
+                                        </td>
 
-                                    <td class="p-4">
-                                        <div class="flex flex-col items-center">
-                                            <span class="text-sm font-black text-emerald-600">Rp
-                                                {{ number_format($totalBayarKotor, 0, ',', '.') }}</span>
-                                            @if ($totalRefund > 0)
-                                                <div
-                                                    class="flex flex-col items-center mt-1 pt-1 border-t border-dashed border-orange-200 w-full">
-                                                    <span class="text-[10px] text-red-500 font-bold">Refund:
-                                                        -{{ number_format($totalRefund, 0, ',', '.') }}</span>
-                                                    <span class="text-[10px] text-blue-600 font-black">sisa: Rp
-                                                        {{ number_format($totalBayar, 0, ',', '.') }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </td>
+                                        <td class="p-5">
+                                            {{ $p->buku->judul_buku }}
+                                        </td>
 
-                                    <td class="p-4 text-[11px] text-gray-500 leading-relaxed italic">
-                                        @foreach ($item->pembayaran as $bayar)
-                                            • {{ $bayar->keterangan }} <br>
-                                        @endforeach
-                                    </td>
+                                        <td class="p-5">
+                                            {{ $p->tanggal_pinjam }} <br>
+                                            <span class="text-orange-400">{{ $p->tanggal_jatuh_tempo }}</span>
+                                        </td>
 
-                                    <td class="p-4 text-center">
-                                        <a href="{{ route('refund.form', $item->id) }}"
-                                            class="inline-block bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95">
-                                            Refund
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="p-10 text-center text-gray-400 font-medium italic">
-                                        Tidak ada data pembayaran yang ditemukan.
-                                    </td>
-                                </tr>
-                            @endforelse
+                                        <td class="p-5 text-center">
+                                            <span class="text-amber-500 font-bold">Menunggu Pembayaran</span>
+                                        </td>
+
+                                        <td class="p-5 text-center">
+                                            <a href="{{ route('pembayaran.show', $p->id) }}"
+                                                class="bg-amber-400 hover:bg-amber-500 text-white px-4 py-2 rounded-xl">
+                                                Bayar
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
+
+
         </div>
 
 

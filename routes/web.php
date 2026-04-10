@@ -8,6 +8,7 @@ use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PeminjamanBukuController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\PenggunaController;
+use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 // use App\Http\Middleware\RoleMiddleware;
@@ -22,6 +23,9 @@ Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])->name('lapor
 
 Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
 Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
+
+
+Route::get('/petugas/dashboard', [PetugasController::class, 'dashboard'])->name('petugasDashboard')->middleware('auth');
 
 //Buku Controller
 Route::controller(BukuController::class)->group(function () {
@@ -112,8 +116,9 @@ Route::controller(AuthController::class)->group(function () {
     // Route::post('/logout', 'logout')->name('logout');
 });
 
-Route::get('/dashboard', [AuthController::class, 'buku'])->name('anggota.buku')->middleware('auth', 'role:anggota');
 Route::get('/buku/{id}/detail', [AuthController::class, 'detailBuku'])->name('anggota.buku.detail')->middleware('auth', 'role:anggota');
+Route::get('/dashboard', [AuthController::class, 'buku'])->name('anggota.buku')->middleware('auth', 'role:anggota');
+Route::get('/dashboardqw', [AuthController::class, 'dashboard'])->name('anggota.dashboard')->middleware('auth', 'role:anggota');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
@@ -123,9 +128,9 @@ Route::middleware(['auth', 'role:anggota'])->group(function () {
     Route::view('/anggota/dashboard', 'anggota.dashboard');
 });
 
-Route::middleware(['auth', 'role:petugas'])->group(function () {
-    Route::view('/petugas/dashboard', 'petugas.dashboard');
-});
+// Route::middleware(['auth', 'role:petugas'])->group(function () {
+//     Route::view('/petugas/dashboard', 'petugas.dashboard');
+// });
 
 Route::middleware(['auth', 'role:kepala_perpustakaan'])->group(function () {
     Route::view('/kepala/dashboard', 'kepala.dashboard');
@@ -137,7 +142,7 @@ Route::post('/peminjaman/setujui/{id}', [PeminjamanBukuController::class, 'setuj
 Route::post('/peminjaman/tolak/{id}', [PeminjamanBukuController::class, 'tolak'])->name('peminjaman.tolak');
 
 
-Route::get('/petugas/dashboard', [AuthController::class, 'petugasDashboard'])->name('petugasDashboard')->middleware('auth');
+Route::get('/petugas/peminjaman-konfirmasi', [AuthController::class, 'peminjamanKonfir'])->name('petugasPeminjaman')->middleware('auth');
 
 Route::get('/kepala/dashboard', [AuthController::class, 'kepalaDashboard'])->name('kepalaDashboard')->middleware('auth');
 

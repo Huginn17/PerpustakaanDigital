@@ -115,9 +115,11 @@
                                 <td class="px-6 py-6">
                                     <div class="inline-flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
                                         <div class="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">
+                                        @if ($item->petugas)
                                             {{ $item->petugas->nama_lengkap ?? $item->petugas->user->username }}
-                                        </span>
+                                        @else
+                                            <span class="text-red-500">Belum dikonfirmasi</span>
+                                        @endif
                                     </div>
                                 </td>
 

@@ -1,7 +1,7 @@
 @extends('anggota.layout.index')
 @section('anggota')
     <div class="p-4 sm:ml-64">
-        <div class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+        {{-- <div class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto">
 
                 <div class="mb-8">
@@ -47,6 +47,8 @@
                 </div>
 
             </div>
-        </div>
+        </div> --}}
+
+        <h1>Dashboard Anggota</h1>
     </div>
 @endsection

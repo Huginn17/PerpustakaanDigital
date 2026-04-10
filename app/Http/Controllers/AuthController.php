@@ -102,6 +102,11 @@ class AuthController extends Controller
         $bukus = Buku::all();
         return view('anggota.peminjaman.index', compact('bukus'));
     }
+    public function dashboard()
+    {
+        $bukus = Buku::all();
+        return view('anggota.dashboard', compact('bukus'));
+    }
 
     public function detailBuku($id)
     {
@@ -109,32 +114,40 @@ class AuthController extends Controller
         return view('anggota.daftarBuku.detail', compact('buku'));
     }
 
-    public function petugasDashboard()
+    public function peminjamanKonfir()
     {
         $peminjaman = PeminjamanBuku::with(['buku', 'anggota'])
             ->where('status', 'pending')
             ->get();
-        return view('petugas.dashboard', compact('peminjaman'));
+
+        $peminjamanSelesai = PeminjamanBuku::with('buku', 'anggota')
+            ->where('status', 'dipinjam')
+            ->latest()
+            ->get();
+
+        return view('petugas.peminjaman.pengembalian', compact('peminjaman', 'peminjamanSelesai'));
     }
 
     public function pengajuanPengembalian()
     {
-        $data = PeminjamanBuku::with(['user', 'buku'])
-            ->whereIn('status', ['menunggu_konfirmasi', 'menunggu_pembayaran'])
-            ->latest()
+        // $data = PeminjamanBuku::with(['user', 'buku'])
+        //     ->whereIn('status', ['menunggu_konfirmasi', 'menunggu_pembayaran'])
+        //     ->latest()
+        //     ->get();
+
+        // HITUNG DENDA (yang masih diproses)
+        $prosesDenda = PeminjamanBuku::with('buku', 'anggota')
+            ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
             ->get();
 
-        $Data = PeminjamanBuku::with(['buku', 'anggota', 'dendas'])
-            ->where('status', 'dikembalikan')
-            ->whereHas('dendas', function ($q) {
-                $q->where('jenis', 'hilang');
-            })
-            ->latest()
+        // PEMBAYARAN DENDA
+        $pembayaranDenda = PeminjamanBuku::with('buku', 'anggota')
+            ->where('status', 'menunggu_pembayaran')
             ->get();
 
         $setting = Setting::first();
 
-        return view('petugas.peminjaman.index', compact('data', 'Data', 'setting'));
+        return view('petugas.peminjaman.index', compact('prosesDenda', 'pembayaranDenda', 'setting'));
     }
 
     public function ajukanPengembalianPage()
@@ -159,7 +172,7 @@ class AuthController extends Controller
             ->get();
 
         $data = PeminjamanBuku::with('buku')
-            ->where('anggota_id', $anggotaId    )
+            ->where('anggota_id', $anggotaId)
             ->where('status', 'dipinjam')
             ->latest()
             ->get();
