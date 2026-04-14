@@ -19,12 +19,12 @@ class PetugasController extends Controller
 
         // TABLE
         $peminjamanPending = PeminjamanBuku::with('buku', 'anggota')
-            ->where('status', 'menunggu_konfirmasi')
+            ->where('status', 'pending')
             ->latest()
             ->get();
 
         $pengembalianPending = PeminjamanBuku::with('buku', 'anggota')
-            ->where('status', 'menunggu_pembayaran') // atau menunggu konfirmasi pengembalian
+            ->where('status', 'menunggu_konfirmasi') // atau menunggu konfirmasi pengembalian
             ->latest()
             ->get();
 

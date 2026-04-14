@@ -42,7 +42,7 @@
 
             <ul class="space-y-2 font-medium">
                 <li>
-                    <a href="#"
+                    <a href="{{ route('anggota.dashboard') }}"
                         class="flex items-center p-3 text-slate-600 rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 group {{ request()->routeIs('anggota.dashboard') ? 'bg-orange-50 text-orange-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 group-hover:text-orange-500" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -64,8 +64,6 @@
                             </path>
                         </svg>
                         <span class="flex-1 ms-3 whitespace-nowrap">Daftar Buku</span>
-                        <span
-                            class="inline-flex items-center justify-center px-2 py-0.5 ms-3 text-xs font-semibold text-orange-800 bg-orange-200 rounded-full">New</span>
                     </a>
                 </li>
 
@@ -78,9 +76,7 @@
                                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                             </path>
                         </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Inbox</span>
-                        <span
-                            class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-bold text-white bg-orange-500 rounded-full shadow-md">3</span>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Pengembalian</span>
                     </a>
                 </li>
 
@@ -98,29 +94,26 @@
 
                 <li class="pt-4 mt-4 border-t border-orange-50"></li>
 
-                <li>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="w-full flex items-center p-3 text-red-500 rounded-xl hover:bg-red-50 transition-all duration-200 group text-left">
-                            <svg class="w-5 h-5 transition duration-75 group-hover:text-red-600" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                </path>
-                            </svg>
-                            <span class="ms-3 font-semibold">Keluar</span>
-                        </button>
-                    </form>
-                </li>
             </ul>
 
-            <div id="dropdown-cta" class="p-4 mt-12 rounded-2xl bg-orange-50 border border-orange-100" role="alert">
-                <p class="mb-3 text-sm text-orange-800 font-medium">
-                    Butuh bantuan akses perpustakaan?
-                </p>
-                <a class="text-xs text-orange-600 font-bold hover:underline" href="#">Hubungi Admin &rarr;</a>
+            <div class="mt-50">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                        class="group flex w-full items-center p-3 text-slate-00 rounded-xl transition-all duration-300 hover:bg-white hover:text-orange-600">
+
+                        <svg class="w-5 h-5 text-slate-800 transition duration-300 group-hover:text-orange-600"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+
+                        <span class="ms-3 font-semibold text-sm uppercase tracking-wide">Logout</span>
+                    </button>
+                </form>
             </div>
+
         </div>
     </aside>
 

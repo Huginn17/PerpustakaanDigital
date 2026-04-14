@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\PeminjamanBuku;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -16,104 +17,166 @@ class PeminjamanBukuController extends Controller
     {
         $bukus = Buku::all();
 
-        
+
         return view('anggota.peminjaman.index', compact('bukus'));
     }
-    // Ajukan Pinjaman Buku
-    public function PeminjamanBuku(Request $request)
+
+    public function pinjam(Request $request)
     {
-        $buku_id = $request->buku_id;
-        // Jika pengguna ini bukan anggota, maka return error
-        $user = Auth::user();
-        if (!$user->anggota) {
-            return back()->with('error', 'sepertinya kamu bukan anggota, silahkan daftar terlebih dahulu untuk bisa meminjam buku!');
-        }
-        $anggota_id = Auth::user()->Anggota->id;
+        $request->validate([
+            'buku_id' => 'required',
+            'tanggal_jatuh_tempo' => 'required|date'
+        ]);
 
+        $setting = Setting::first();
 
-        // Waktu Saat Ini
-        $WaktuIni = Carbon::now();
-        // Ambil Data Buku
-        $buku = Buku::findOrFail($buku_id);
+        $today = now()->startOfDay();
+        $jatuhTempo = \Carbon\Carbon::parse($request->tanggal_jatuh_tempo);
 
-        // Cek apakah Stok Buku Tersebut Tersedia?
-        if ($buku->stok_buku === 0) {
-            return back()->with('error', 'Mohon Maaf, stok buku ini kosong!');
-        }
+        $maxTanggal = $today->copy()->addDays($setting->max_hari_pinjam ?? 14);
 
-        // Cek pengguna ini sedang pinjam buku sebanyakk 3 buku?
-        $pinjaman = PeminjamanBuku::where('anggota_id', $anggota_id)->where('status', 'dipinjam')->count();
-        if ($pinjaman === 3 || $pinjaman >= 3) {
-            return back()->with('error', 'Jumlah Pinjaman kamu sudah Mencapai batas pinjaman, silahkan kembalikan buku pinjamanmu terlebih dahulu!');
-        }
-
-        // batas pengajuan atau nunggu konfirmasi dulu,
-        $batas_pengajuan_pending = PeminjamanBuku::where('anggota_id', $anggota_id)->where('status', 'pending')->count();
-        if ($batas_pengajuan_pending === 3 || $batas_pengajuan_pending >= 3) {
-            return back()->with('error', 'kamu telah mencapai batas pengajuan buku');
-        }
-
-        $dendaBelumBayar = PeminjamanBuku::where('anggota_id', $anggota_id)
-            ->where('status', 'menunggu_pembayaran')
-            ->count();
-
-        if ($dendaBelumBayar > 0) {
-            return back()->with('error', 'Kamu masih memiliki denda yang belum dibayar, silakan selesaikan terlebih dahulu!');
+        // VALIDASI MAX HARI 🔥
+        if ($jatuhTempo->gt($maxTanggal)) {
+            return back()->with('error', 'Melebihi batas maksimal peminjaman');
         }
 
         PeminjamanBuku::create([
-            "buku_id"         =>   $buku_id,
-            "anggota_id"      =>   $anggota_id,
-            "tanggal_pinjam"  =>   $WaktuIni
+            'buku_id' => $request->buku_id,
+            'anggota_id' => auth()->user()->anggota->id,
+            'tanggal_pinjam' => $today,
+            'tanggal_jatuh_tempo' => $jatuhTempo,
+            'status' => 'pending'
         ]);
 
-        return back()->with('success', 'selamat, pengajuan buku berhasil silahkan menunggu konfirmasi..');
+        return back()->with('success', 'Pengajuan peminjaman berhasil');
     }
 
+    // Ajukan Pinjaman Buku
+    public function PeminjamanBuku(Request $request)
+    {
+        $request->validate([
+            'buku_id' => 'required',
+            'tanggal_jatuh_tempo' => 'required|date'
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user->anggota) {
+            return back()->with('error', 'Kamu bukan anggota, silakan daftar terlebih dahulu!');
+        }
+
+        $anggota_id = $user->anggota->id;
+
+        $today = Carbon::today('Asia/Jakarta');
+
+        $setting = Setting::first();
+        $maxHari = $setting->max_hari_pinjam ?? 14;
+
+        // 🔥 FIX DI SINI
+        $jatuhTempo = Carbon::createFromFormat('Y-m-d', $request->tanggal_jatuh_tempo);
+
+        // VALIDASI
+        if ($jatuhTempo->lt($today)) {
+            return back()->with('error', 'Tanggal jatuh tempo tidak valid');
+        }
+
+        if ($jatuhTempo->gt($today->copy()->addDays($maxHari))) {
+            return back()->with('error', "Maksimal peminjaman hanya {$maxHari} hari");
+        }
+
+        $buku = Buku::findOrFail($request->buku_id);
+
+        if ($buku->stock_buku <= 0) {
+            return back()->with('error', 'Stok buku kosong!');
+        }
+
+        $pinjaman = PeminjamanBuku::where('anggota_id', $anggota_id)
+            ->where('status', 'dipinjam')
+            ->count();
+
+        if ($pinjaman >= 3) {
+            return back()->with('error', 'Batas maksimal pinjaman adalah 3 buku');
+        }
+
+        $pending = PeminjamanBuku::where('anggota_id', $anggota_id)
+            ->where('status', 'pending')
+            ->count();
+
+        if ($pending >= 3) {
+            return back()->with('error', 'Batas pengajuan buku sudah tercapai');
+        }
+
+        $denda = PeminjamanBuku::where('anggota_id', $anggota_id)
+            ->where('status', 'menunggu_pembayaran')
+            ->count();
+
+        if ($denda > 0) {
+            return back()->with('error', 'Masih ada denda yang belum dibayar');
+        }
+
+        PeminjamanBuku::create([
+            'buku_id' => $request->buku_id,
+            'anggota_id' => $anggota_id,
+            'tanggal_pinjam' => $today,
+            'tanggal_jatuh_tempo' => $jatuhTempo,
+            'status' => 'pending'
+        ]);
+
+        return back()->with('success', 'Pengajuan berhasil, tunggu konfirmasi petugas');
+    }
 
 
     public function setujui(Request $request, $id)
     {
-        $request->validate([
-            'tanggal_jatuh_tempo' => 'required|date|after:today'
-        ]);
+        $peminjaman = PeminjamanBuku::with(['buku', 'anggota'])
+            ->lockForUpdate()
+            ->findOrFail($id);
 
-        try {
-            DB::transaction(function () use ($id, $request) {
-
-                $peminjaman = PeminjamanBuku::with(['buku', 'anggota'])
-                    ->lockForUpdate()
-                    ->findOrFail($id);
-
-                if ($peminjaman->status !== 'pending') {
-                    throw new \Exception('Status tidak valid!');
-                }
-
-                if ($peminjaman->buku->stock_buku <= 0) {
-                    throw new \Exception('Stok buku habis!');
-                }
-
-                if ($peminjaman->anggota->jumlah_pinjam_aktif >= $peminjaman->anggota->max_pinjam) {
-                    throw new \Exception('Maksimal peminjaman tercapai!');
-                }
-
-                $peminjaman->update([
-                    'status' => 'dipinjam',
-                    'tanggal_pinjam' => now(),
-                    'tanggal_jatuh_tempo' => $request->tanggal_jatuh_tempo,
-                    'petugas_id' => auth()->user()->petugas->id
-                ]);
-
-                $peminjaman->buku->decrement('stock_buku');
-                $peminjaman->anggota->increment('jumlah_pinjam_aktif');
-            });
-
-            return back()->with('success', 'Peminjaman disetujui');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
+        // validasi status
+        if ($peminjaman->status !== 'pending') {
+            return back()->with('error', 'Status tidak valid!');
         }
-    }
 
+        if ($peminjaman->buku->stock_buku <= 0) {
+            return back()->with('error', 'Stok buku habis!');
+        }
+
+        if ($peminjaman->anggota->jumlah_pinjam_aktif >= $peminjaman->anggota->max_pinjam) {
+            return back()->with('error', 'Maksimal peminjaman tercapai!');
+        }
+
+        /*
+    |--------------------------------------------------
+    | 🔥 CEK APAKAH SUDAH ADA REQUEST JATUH TEMPO
+    |--------------------------------------------------
+    */
+        if ($peminjaman->tanggal_jatuh_tempo) {
+            // pakai tanggal dari anggota
+            $tanggalJatuhTempo = $peminjaman->tanggal_jatuh_tempo;
+        } else {
+            // kalau tidak ada → wajib input dari petugas
+            $request->validate([
+                'tanggal_jatuh_tempo' => 'required|date|after:today'
+            ]);
+
+            $tanggalJatuhTempo = $request->tanggal_jatuh_tempo;
+        }
+
+        DB::transaction(function () use ($peminjaman, $tanggalJatuhTempo) {
+
+            $peminjaman->update([
+                'status' => 'dipinjam',
+                'tanggal_pinjam' => now(),
+                'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
+                'petugas_id' => auth()->user()->petugas->id
+            ]);
+
+            $peminjaman->buku->decrement('stock_buku');
+            $peminjaman->anggota->increment('jumlah_pinjam_aktif');
+        });
+
+        return back()->with('success', 'Peminjaman disetujui');
+    }
 
     public function tolak(Request $request, $id)
     {

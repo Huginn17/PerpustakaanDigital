@@ -85,4 +85,7 @@ class KepalaPerpusController extends Controller
 
         return redirect()->route('kepala.buku.index')->with('success', 'Data berhasil dihapus');
     }
+
+
+    
 }

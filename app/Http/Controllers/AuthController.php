@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Anggota;
 use App\Models\Buku;
+use App\Models\Denda;
+use App\Models\Pembayaran;
 use App\Models\PeminjamanBuku;
 use App\Models\Setting;
 use App\Models\User;
@@ -97,21 +100,80 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function buku()
+    public function buku(Request $request)
     {
-        $bukus = Buku::all();
-        return view('anggota.peminjaman.index', compact('bukus'));
+        $search = $request->search;
+
+        $bukus = Buku::when($search, function ($query, $search) {
+            return $query->where('judul_buku', 'like', '%' . $search . '%')
+                ->orWhere('penulis', 'like', '%' . $search . '%')
+                ->orWhere('kode_buku', 'like', '%' . $search . '%');
+        })->paginate(10);
+
+        return view('anggota.peminjaman.index', compact('bukus', 'search'));
     }
+
+
     public function dashboard()
     {
-        $bukus = Buku::all();
-        return view('anggota.dashboard', compact('bukus'));
+        $anggota = Auth::user()->anggota;
+
+        //  jumlah buku dipinjam (aktif)
+        $totalDipinjam = PeminjamanBuku::where('anggota_id', $anggota->id)
+            ->where('status', 'dipinjam')
+            ->count();
+
+        //  total pengembalian
+        $totalKembali = PeminjamanBuku::where('anggota_id', $anggota->id)
+            ->where('status', 'dikembalikan')
+            ->count();
+
+        //  TOTAL DENDA REAL (dikurangi pembayaran)
+        $totalDenda = Denda::whereHas('peminjaman', function ($q) use ($anggota) {
+            $q->where('anggota_id', $anggota->id);
+        })->sum('nominal');
+
+        $totalBayar = Pembayaran::whereHas('peminjaman', function ($q) use ($anggota) {
+            $q->where('anggota_id', $anggota->id);
+        })->where('tipe', 'bayar')->sum('nominal');
+
+        $totalDenda = max(0, $totalDenda - $totalBayar);
+
+        //  buku terlambat
+        $totalTerlambat = PeminjamanBuku::where('anggota_id', $anggota->id)
+            ->where('status', 'dipinjam')
+            ->whereDate('tanggal_jatuh_tempo', '<', now())
+            ->count();
+
+        //  jumlah transaksi yang belum bayar
+        $jumlahDendaBelumBayar = PeminjamanBuku::where('anggota_id', $anggota->id)
+            ->where('status', 'menunggu_pembayaran')
+            ->count();
+
+        // aktivitas terbaru
+        $aktivitas = PeminjamanBuku::with('buku')
+            ->where('anggota_id', $anggota->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('anggota.dashboard', compact(
+            'totalDipinjam',
+            'totalKembali',
+            'totalTerlambat',
+            'totalDenda',
+            'jumlahDendaBelumBayar',
+            'aktivitas'
+        ));
     }
+
 
     public function detailBuku($id)
     {
         $buku = Buku::findOrFail($id);
-        return view('anggota.daftarBuku.detail', compact('buku'));
+        $setting = Setting::first();
+
+        return view('anggota.daftarBuku.detail', compact('buku', 'setting'));
     }
 
     public function peminjamanKonfir()
@@ -203,6 +265,30 @@ class AuthController extends Controller
 
     public function kepalaDashboard()
     {
-        return view('kepala_perpus.dashboard');
+        $totalBuku = Buku::count();
+        $totalStok = Buku::sum('stock_buku');
+
+        $dipinjam = PeminjamanBuku::where('status', 'dipinjam')->count();
+
+        $dikembalikanHariIni = PeminjamanBuku::whereDate('tanggal_kembalikan', now())->count();
+
+        $totalDenda = Denda::where('status', 'aktif')->sum('nominal');
+
+        $anggota = Anggota::count();
+
+        $aktivitas = PeminjamanBuku::with(['buku', 'anggota'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('kepala_perpus.dashboard', compact(
+            'totalBuku',
+            'totalStok',
+            'dipinjam',
+            'dikembalikanHariIni',
+            'totalDenda',
+            'anggota',
+            'aktivitas'
+        ));
     }
 }

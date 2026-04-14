@@ -103,7 +103,14 @@ class PembayaranController extends Controller
             return back()->with('error', 'Tidak dalam proses pembayaran');
         }
 
-        $totalDenda = Denda::where('peminjaman_id', $id)->sum('nominal');
+        /*
+    |--------------------------------------------------------------------------
+    | 🔥 TOTAL DENDA & BAYAR
+    |--------------------------------------------------------------------------
+    */
+        $totalDenda = Denda::where('peminjaman_id', $id)
+            ->where('status', 'aktif')
+            ->sum('nominal');
 
         $totalBayar = Pembayaran::where('peminjaman_id', $id)
             ->where('tipe', 'bayar')
@@ -115,33 +122,39 @@ class PembayaranController extends Controller
             return back()->with('error', 'Pembayaran melebihi sisa denda');
         }
 
-        // simpan pembayaran
+        /*
+    |--------------------------------------------------------------------------
+    | 💾 SIMPAN PEMBAYARAN
+    |--------------------------------------------------------------------------
+    */
         Pembayaran::create([
             'peminjaman_id' => $id,
             'nominal' => $request->nominal,
             'tipe' => 'bayar'
         ]);
 
-        // cek lunas
+        /*
+    |--------------------------------------------------------------------------
+    | 🔥 CEK LUNAS
+    |--------------------------------------------------------------------------
+    */
         $totalBayarBaru = $totalBayar + $request->nominal;
 
         if ($totalBayarBaru >= $totalDenda) {
 
-            // update status peminjaman
+            // gunakan timezone Indonesia
+            $today = now('Asia/Jakarta')->toDateString();
+
             $peminjaman->update([
-                'status' => 'dikembalikan'
+                'status' => 'dikembalikan',
+                'tanggal_kembalikan' => $today
             ]);
 
-
-            // kembalikan stok buku
-            if ($peminjaman->buku) {
-                $peminjaman->buku->increment('stock_buku');
-            }
-
-            // kurangi jumlah pinjam aktif
+            // kurangi pinjaman aktif
             if ($peminjaman->anggota && $peminjaman->anggota->jumlah_pinjam_aktif > 0) {
                 $peminjaman->anggota->decrement('jumlah_pinjam_aktif');
             }
+
         }
 
         return back()->with('success', 'Pembayaran berhasil');

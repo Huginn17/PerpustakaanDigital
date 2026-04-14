@@ -111,39 +111,41 @@ class ProfileController extends Controller
     }
     public function update_kepala(Request $request)
     {
-        $kepala = Auth::user()->kepala;
+        $kepala = Auth::user()->kepala_perpustakaan;
+
+        if (!$kepala) {
+            return back()->with('error', 'Data kepala tidak ditemukan');
+        }
 
         $request->validate([
-            'nama_lengkap' => 'nullable|string|max:255',
-            'nomor_induk' => 'nullable|string|max:100',
-            'jenis_kelamin' => 'nullable',
-            'tanggal_lahir' => 'nullable|date',
-            'alamat' => 'nullable|string',
-            'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'nama_lengkap'   => 'nullable|string|max:255',
+            'nomor_induk'    => 'nullable|string|max:100',
+            'jenis_kelamin'  => 'nullable',
+            'tanggal_lahir'  => 'nullable|date',
+            'alamat'         => 'nullable|string',
+            'foto_profil'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         // upload foto
         if ($request->hasFile('foto_profil')) {
 
-            // hapus lama
             if ($kepala->foto_profil && Storage::disk('public')->exists($kepala->foto_profil)) {
                 Storage::disk('public')->delete($kepala->foto_profil);
             }
 
-            // simpan ke public
             $path = $request->file('foto_profil')->store('foto_profil', 'public');
 
             $kepala->foto_profil = $path;
         }
 
-        // update data
+        // update langsung seperti petugas
         $kepala->update([
-            'nama_lengkap' => $request->nama_lengkap,
-            'nomor_induk' => $request->nomor_induk,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'alamat' => $request->alamat,
-            'foto_profil' => $kepala->foto_profil
+            'nama_lengkap'   => $request->nama_lengkap,
+            'nomor_induk'    => $request->nomor_induk,
+            'jenis_kelamin'  => $request->jenis_kelamin,
+            'tanggal_lahir'  => $request->tanggal_lahir,
+            'alamat'         => $request->alamat,
+            'foto_profil'    => $kepala->foto_profil
         ]);
 
         return back()->with('success', 'Profile kepala berhasil diupdate');

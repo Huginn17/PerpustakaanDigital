@@ -11,13 +11,13 @@ use Illuminate\Support\Carbon;
 
 class PengembalianController extends Controller
 {
-    public function formPengembalian($id)
-    {
+    // public function formPengembalian($id)
+    // {
 
-        $peminjaman = PeminjamanBuku::with(['user', 'buku'])->findOrFail($id);
+    //     $peminjaman = PeminjamanBuku::with(['user', 'buku'])->findOrFail($id);
 
-        return view('petugas.peminjaman.pengembalian', compact('peminjaman'));
-    }
+    //     return view('petugas.peminjaman.pengembalian', compact('peminjaman'));
+    // }
 
     // public function pengembalian(Request $request, $id)
     // {
@@ -125,6 +125,10 @@ class PengembalianController extends Controller
 
 
 
+
+
+
+
     public function prosesPengembalian(Request $request, $id)
     {
         $request->validate([
@@ -133,51 +137,52 @@ class PengembalianController extends Controller
             'denda_kerusakan' => 'nullable|numeric|min:0'
         ]);
 
-        $peminjaman = PeminjamanBuku::with('buku')->findOrFail($id);
+        $peminjaman = PeminjamanBuku::with(['buku', 'anggota'])->findOrFail($id);
 
-        // ✅ validasi status
         if ($peminjaman->status !== 'menunggu_konfirmasi') {
             return back()->with('error', 'Pengembalian hanya bisa dari status menunggu konfirmasi');
         }
 
         /*
     |------------------------------------------------------------------
-    | 🔥 1. HAPUS DENDA LAMA
+    | 1. HAPUS DENDA LAMA
     |------------------------------------------------------------------
     */
         Denda::where('peminjaman_id', $peminjaman->id)->delete();
 
         /*
     |------------------------------------------------------------------
-    | 🔥 2. DENDA TERLAMBAT (PAKAI SETTING)
+    | 2. FIX TIMEZONE 🔥
     |------------------------------------------------------------------
     */
-        $today = Carbon::today();
-        $jatuhTempo = Carbon::parse($peminjaman->tanggal_jatuh_tempo);
+        $today = Carbon::today('Asia/Jakarta');
 
-        // hitung selisih hari (negatif kalau belum telat)
+        // 🔥 FIX: jangan parse langsung
+        $jatuhTempo = Carbon::createFromFormat('Y-m-d', $peminjaman->tanggal_jatuh_tempo);
+
+        /*
+    |------------------------------------------------------------------
+    | 3. HITUNG TERLAMBAT
+    |------------------------------------------------------------------
+    */
         $hariTerlambat = $jatuhTempo->diffInDays($today, false);
-
-        // normalisasi (kalau belum telat → 0)
         $hariTerlambat = max(0, $hariTerlambat);
 
-        // ambil setting denda
         $dendaPerHari = optional(Setting::first())->denda_per_hari ?? 10000;
 
         if ($hariTerlambat > 0) {
-            $nominalTerlambat = $hariTerlambat * $dendaPerHari;
-
             Denda::create([
                 'peminjaman_id' => $peminjaman->id,
                 'jenis' => 'terlambat',
-                'nominal' => $nominalTerlambat,
+                'nominal' => $hariTerlambat * $dendaPerHari,
                 'keterangan' => "Terlambat {$hariTerlambat} hari (Rp " . number_format($dendaPerHari, 0, ',', '.') . "/hari)",
+                'status' => 'aktif'
             ]);
         }
 
         /*
     |------------------------------------------------------------------
-    | 🔥 3. DENDA KERUSAKAN / HILANG
+    | 4. DENDA KERUSAKAN / HILANG
     |------------------------------------------------------------------
     */
         if (in_array($request->kondisi, ['rusak', 'hilang'])) {
@@ -198,20 +203,50 @@ class PengembalianController extends Controller
                 'keterangan' => $request->kondisi === 'hilang'
                     ? 'Buku hilang (input manual)'
                     : 'Kerusakan buku (' . $request->tingkat_kerusakan . ')',
+                'status' => 'aktif'
             ]);
         }
 
         /*
     |------------------------------------------------------------------
-    | 🔥 4. UPDATE STATUS
+    | 5. KEMBALIKAN STOK
     |------------------------------------------------------------------
     */
-        $peminjaman->update([
-            'tanggal_kembalikan' => $today,
-            'status' => 'menunggu_pembayaran'
-        ]);
+        if ($peminjaman->buku && $request->kondisi !== 'hilang') {
+            $peminjaman->buku->increment('stock_buku');
+        }
 
-        return back()->with('success', 'Denda berhasil dihitung, lanjut ke pembayaran');
+        /*
+    |------------------------------------------------------------------
+    | 6. CEK DENDA
+    |------------------------------------------------------------------
+    */
+        $totalDenda = Denda::where('peminjaman_id', $peminjaman->id)
+            ->where('status', 'aktif')
+            ->sum('nominal');
+
+        /*
+    |------------------------------------------------------------------
+    | 7. UPDATE STATUS
+    |------------------------------------------------------------------
+    */
+        if ($totalDenda > 0) {
+            $peminjaman->update([
+                'tanggal_kembalikan' => $today,
+                'status' => 'menunggu_pembayaran'
+            ]);
+        } else {
+            $peminjaman->update([
+                'tanggal_kembalikan' => $today,
+                'status' => 'dikembalikan'
+            ]);
+
+            if ($peminjaman->anggota && $peminjaman->anggota->jumlah_pinjam_aktif > 0) {
+                $peminjaman->anggota->decrement('jumlah_pinjam_aktif');
+            }
+        }
+
+        return back()->with('success', 'Pengembalian berhasil diproses');
     }
 
 

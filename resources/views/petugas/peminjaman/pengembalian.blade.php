@@ -100,14 +100,17 @@
                                     </td>
                                     <td class="p-5">
                                         <div class="flex items-center justify-center space-x-2">
-                                            <button onclick="openModal({{ $item->id }})"
+                                            <button
+                                                onclick="openModal({{ $item->id }}, {{ $item->tanggal_jatuh_tempo ? "'" . $item->tanggal_jatuh_tempo . "'" : 'null' }})"
                                                 class="flex items-center justify-center w-9 h-9 bg-white border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-200 shadow-sm shadow-green-100 active:scale-90"
                                                 title="Terima">
+
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                                         d="M5 13l4 4L19 7"></path>
                                                 </svg>
+
                                             </button>
 
                                             <button onclick="openModalTolak({{ $item->id }})"
@@ -146,6 +149,35 @@
 
             @include('components.modalTerima_peminjaman')
             @include('components.modalTolak_peminjman')
+
+            <div id="modalView"
+                class="hidden fixed inset-0 z-[999] bg-black/50 backdrop-blur-md flex items-center justify-center">
+
+                <div class="bg-white p-6 rounded-lg w-80">
+                    <h2 class="text-lg font-bold mb-3">Permintaan Anggota</h2>
+
+                    <p class="text-sm text-gray-500 mb-2">
+                        Tanggal jatuh tempo yang diminta:
+                    </p>
+
+                    <h2 id="view_tanggal" class="font-bold text-lg text-orange-500 mb-4"></h2>
+
+                    <form method="POST" id="formView">
+                        @csrf
+
+                        <div class="flex justify-end gap-2">
+                            <button type="button" onclick="closeModal()" class="bg-gray-400 text-white px-3 py-1 rounded">
+                                Batal
+                            </button>
+
+                            <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">
+                                Setujui
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
 
 
@@ -192,7 +224,7 @@
                                             {{ substr($item->anggota->nama_lengkap ?? '-', 0, 1) }}
                                         </div> --}}
                                         <span class="font-semibold text-slate-700">
-                                            {{ $item->anggota->nama_lengkap ?? $item->anggota->user->username}}
+                                            {{ $item->anggota->nama_lengkap ?? $item->anggota->user->username }}
                                         </span>
                                     </div>
                                 </td>
@@ -229,6 +261,43 @@
         </div>
 
     </div>
+
+    <script>
+        function openModal(id, tanggalJatuhTempo) {
+
+            // reset dulu semua modal
+            document.getElementById('modalInput').classList.add('hidden');
+            document.getElementById('modalView').classList.add('hidden');
+
+            if (tanggalJatuhTempo && tanggalJatuhTempo !== 'null') {
+
+                // 🔥 tampilkan modal VIEW
+                document.getElementById('modalView').classList.remove('hidden');
+
+                document.getElementById('formView').action =
+                    `/peminjaman/setujui/${id}`;
+
+                document.getElementById('view_tanggal').innerText =
+                    tanggalJatuhTempo;
+
+            } else {
+
+                // 🔥 tampilkan modal INPUT
+                document.getElementById('modalInput').classList.remove('hidden');
+
+                document.getElementById('formInput').action =
+                    `/peminjaman/setujui/${id}`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalInput').classList.add('hidden');
+            document.getElementById('modalView').classList.add('hidden');
+        }
+    </script>
+
+
+
 
     <style>
         @keyframes fade-in {

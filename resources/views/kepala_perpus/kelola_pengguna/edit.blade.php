@@ -1,127 +1,249 @@
 @extends('kepala_perpus.layout.index')
+
 @section('kepala_content')
-<div class="p-6 sm:ml-64 min-h-screen bg-gray-50/50">
-    <div class="mb-8 flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Edit Pengguna</h1>
-            <p class="text-gray-500 mt-1">Perbarui informasi akun dan profil pengguna di sini.</p>
-        </div>
-        <a href="{{ route('kepala.pengguna.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center transition">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            Kembali ke Daftar
-        </a>
-    </div>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-    @if ($errors->any())
-        <div class="max-w-4xl mb-6 p-4 rounded-xl bg-red-50 border-l-4 border-red-500 text-red-700 shadow-sm animate-pulse">
-            <div class="flex items-center mb-2">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                <span class="font-bold">Terjadi Kesalahan!</span>
+    <div class="p-6 sm:ml-64 bg-[#fafafa] min-h-screen font-['Plus_Jakarta_Sans']">
+
+        {{-- Header Section --}}
+        <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-8 h-[2px] bg-orange-500"></span>
+                    <span class="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em]">System Update</span>
+                </div>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tighter">
+                    Edit <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">Pengguna</span>
+                </h1>
+                <p class="text-slate-500 text-sm font-medium mt-1">Lakukan sinkronisasi data personel secara berkala.</p>
             </div>
-            <ul class="list-disc list-inside text-sm">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+
+            <a href="{{ route('kepala.pengguna.index') }}"
+                class="group flex items-center text-slate-400 hover:text-slate-900 transition-all font-bold text-xs uppercase tracking-widest">
+                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Kembali
+            </a>
         </div>
-    @endif
 
-    <div class="max-w-4xl bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
-        <form action="{{ route('kepala.pengguna.update', $user->id) }}" method="POST" class="p-8">
-            @csrf
-            @method('PUT')
+        {{-- Error Validation Style --}}
+        @if ($errors->any())
+            <div
+                class="mb-8 p-5 bg-white border-l-4 border-orange-500 rounded-2xl shadow-[0_10px_30px_rgba(249,115,22,0.1)]">
+                <div class="flex items-center mb-3 text-orange-600 font-black uppercase text-[10px] tracking-[0.2em]">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Terjadi Kesalahan Sinkronisasi
+                </div>
+                <ul
+                    class="grid grid-cols-1 md:grid-cols-2 gap-x-6 text-slate-600 text-xs font-bold space-y-1 list-inside list-disc">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-            @php
-                $relasi = $user->anggota ?? ($user->petugas ?? $user->kepala_perpustakaan);
-            @endphp
+        {{-- Form Card --}}
+        <div
+            class="relative bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.03)] border border-slate-100 p-8 md:p-14 overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-80 h-80 bg-orange-100/40 rounded-full blur-[100px]"></div>
+            <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-slate-100 rounded-full blur-[100px]"></div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <div class="space-y-6">
-                    <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        Informasi Akun
-                    </h2>
+            <form action="{{ route('kepala.pengguna.update', $user->id) }}" method="POST" class="relative z-10">
+                @csrf
+                @method('PUT')
 
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-blue-500 transition">Username</label>
-                        <input type="text" name="username" value="{{ $user->username }}" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all" placeholder="Masukkan username">
+                @php
+                    $relasi = $user->anggota ?? ($user->petugas ?? $user->kepala_perpustakaan);
+                @endphp
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+                    {{-- Left Column: Account & Security --}}
+                    <div class="lg:col-span-5 space-y-10">
+                        <div>
+                            <h3
+                                class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-3 mb-8">
+                                <span
+                                    class="w-6 h-6 rounded-lg bg-orange-500 flex items-center justify-center text-[10px] text-white font-black">01</span>
+                                Data Kredensial
+                            </h3>
+
+                            <div class="space-y-6">
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                                    <input type="text" name="username" value="{{ $user->username }}"
+                                        class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email
+                                        System</label>
+                                    <input type="email" name="email" value="{{ $user->email }}"
+                                        class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Update
+                                        Password</label>
+                                    <input type="password" name="password" placeholder="••••••••"
+                                        class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm placeholder:text-slate-300">
+                                    <p class="text-[10px] text-slate-400 font-bold italic mt-1 ml-1">*Kosongkan jika tidak
+                                        ingin diubah</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Otoritas
+                                        Jabatan</label>
+                                    <div class="relative">
+                                        <select name="role"
+                                            class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm appearance-none cursor-pointer">
+                                            <option value="anggota" {{ $user->role == 'anggota' ? 'selected' : '' }}>Anggota
+                                            </option>
+                                            <option value="petugas" {{ $user->role == 'petugas' ? 'selected' : '' }}>Petugas
+                                            </option>
+                                            <option value="kepala_perpustakaan"
+                                                {{ $user->role == 'kepala_perpustakaan' ? 'selected' : '' }}>Kepala
+                                                Perpustakaan</option>
+                                        </select>
+                                        <div
+                                            class="absolute inset-y-0 right-6 flex items-center pointer-events-none text-slate-400">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-blue-500 transition">Email</label>
-                        <input type="email" name="email" value="{{ $user->email }}" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all" placeholder="email@contoh.com">
-                    </div>
+                    {{-- Vertical Divider --}}
+                    <div class="hidden lg:block lg:col-span-1 border-r border-slate-100 h-full"></div>
 
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-blue-500 transition">Password</label>
-                        <input type="password" name="password" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all" placeholder="...">
-                        <p class="text-xs text-gray-400 mt-1 italic">*Kosongkan jika tidak ingin mengubah password</p>
-                    </div>
+                    {{-- Right Column: Profile Identity --}}
+                    <div class="lg:col-span-6 space-y-10">
+                        <div>
+                            <h3
+                                class="text-xs font-black text-slate-900 uppercase tracking-[0.3em] flex items-center gap-3 mb-8">
+                                <span
+                                    class="w-6 h-6 rounded-lg bg-slate-900 flex items-center justify-center text-[10px] text-white font-black">02</span>
+                                Identitas Profil
+                            </h3>
 
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Role / Jabatan</label>
-                        <select name="role" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none transition-all appearance-none cursor-pointer">
-                            <option value="anggota" {{ $user->role == 'anggota' ? 'selected' : '' }}>Anggota</option>
-                            <option value="petugas" {{ $user->role == 'petugas' ? 'selected' : '' }}>Petugas</option>
-                            <option value="kepala_perpustakaan" {{ $user->role == 'kepala_perpustakaan' ? 'selected' : '' }}>Kepala Perpustakaan</option>
-                        </select>
+                            <div class="space-y-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama
+                                        Lengkap</label>
+                                    <input type="text" name="nama_lengkap" value="{{ $relasi->nama_lengkap ?? '' }}"
+                                        class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nomor
+                                            Induk</label>
+                                        <input type="text" name="nomor_induk" value="{{ $relasi->nomor_induk ?? '' }}"
+                                            class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender</label>
+                                        <div class="relative">
+                                            <select name="jenis_kelamin"
+                                                class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm appearance-none cursor-pointer">
+                                                <option value="L"
+                                                    {{ ($relasi->jenis_kelamin ?? '') == 'L' ? 'selected' : '' }}>Laki-laki
+                                                </option>
+                                                <option value="P"
+                                                    {{ ($relasi->jenis_kelamin ?? '') == 'P' ? 'selected' : '' }}>Perempuan
+                                                </option>
+                                            </select>
+                                            <div
+                                                class="absolute inset-y-0 right-6 flex items-center pointer-events-none text-slate-400">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                        d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tanggal
+                                        Lahir</label>
+                                    <input type="date" name="tanggal_lahir"
+                                        value="{{ $relasi->tanggal_lahir ?? '' }}"
+                                        class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alamat
+                                        Domisili</label>
+                                    <textarea name="alamat" rows="2"
+                                        class="w-full px-7 py-4 bg-slate-50 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-2xl outline-none transition-all duration-300 font-bold text-slate-700 shadow-sm resize-none">{{ $relasi->alamat ?? '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-5 0V5a2 2 0 012-2h2a2 2 0 012 2v1m-5 0h4"></path></svg>
-                        Profil Pribadi
-                    </h2>
+                {{-- Action Bar --}}
+                <div class="mt-16 pt-10 border-t border-slate-50 flex flex-col md:flex-row items-center justify-end gap-6">
+                    <button type="reset"
+                        class="text-slate-400 hover:text-red-500 font-black text-[10px] uppercase tracking-[0.3em] transition-colors">
+                        Batalkan Perubahan
+                    </button>
 
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-green-500 transition">Nama Lengkap</label>
-                        <input type="text" name="nama_lengkap" value="{{ $relasi->nama_lengkap ?? '' }}" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all" placeholder="Nama Lengkap">
-                    </div>
-
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-green-500 transition">Nomor Induk (NIP/NIS)</label>
-                        <input type="text" name="nomor_induk" value="{{ $relasi->nomor_induk ?? '' }}" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all" placeholder="123456789">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="group">
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Gender</label>
-                            <select name="jenis_kelamin" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none cursor-pointer">
-                                <option value="L" {{ ($relasi->jenis_kelamin ?? '') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                <option value="P" {{ ($relasi->jenis_kelamin ?? '') == 'P' ? 'selected' : '' }}>Perempuan</option>
-                            </select>
+                    <button type="submit"
+                        class="group relative w-full md:w-auto px-12 py-5 bg-slate-900 text-white font-black uppercase tracking-widest rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:shadow-orange-200 transition-all duration-500 hover:-translate-y-1 active:scale-95 overflow-hidden">
+                        <div class="absolute inset-0 w-0 bg-orange-500 transition-all duration-500 group-hover:w-full">
                         </div>
-                        <div class="group">
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Tgl Lahir</label>
-                            <input type="date" name="tanggal_lahir" value="{{ $relasi->tanggal_lahir ?? '-' }}" 
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all">
-                        </div>
-                    </div>
-
-                    <div class="group">
-                        <label class="block text-sm font-medium text-gray-600 mb-1 group-focus-within:text-green-500 transition">Alamat</label>
-                        <textarea name="alamat" rows="3" 
-                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition-all resize-none" placeholder="Alamat domisili...">{{ $relasi->alamat ?? '-' }}</textarea>
-                    </div>
+                        <span class="relative z-10 flex items-center justify-center">
+                            SIMPAN PERUBAHAN
+                            <svg class="w-5 h-5 ml-3 transform group-hover:translate-x-1 transition-transform"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </span>
+                    </button>
                 </div>
-            </div>
-
-            <div class="mt-10 flex justify-end space-x-3">
-                <button type="reset" class="px-6 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition duration-300">
-                    Reset Form
-                </button>
-                <button type="submit" class="px-10 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-200 transform hover:-translate-y-0.5 transition duration-300">
-                    Simpan Perubahan
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
+
+    <style>
+        /* Custom Styling for Date Indicator */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(346deg) brightness(100%) contrast(97%);
+            cursor: pointer;
+        }
+
+        /* Smooth Hide for Select Arrows */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
 @endsection

@@ -36,8 +36,8 @@
                         </thead>
 
                         <tbody class="divide-y divide-gray-100">
-                            @foreach ($prosesDenda as $i => $p)
-                                @if ($p->status == 'dipinjam' || $p->status == 'menunggu_konfirmasi')
+                            @forelse ($prosesDenda as $i => $p)
+                                @if ($p->status == 'menunggu_konfirmasi')
                                     <tr class="hover:bg-orange-50/30 transition-colors group">
 
                                         <td class="p-5 text-gray-400">{{ $i + 1 }}</td>
@@ -65,7 +65,6 @@
                                             <span class="text-orange-400">Tempo: <b>{{ $p->tanggal_jatuh_tempo }}</b></span>
                                         </td>
 
-                                        {{-- STATUS (SAMA PERSIS) --}}
                                         <td class="p-5 text-center">
                                             @php
                                                 $today = now()->startOfDay();
@@ -87,16 +86,15 @@
                                             @endif
                                         </td>
 
-                                        {{-- AKSI (SAMA) --}}
                                         <td class="p-5 text-center">
                                             <button
                                                 onclick="openModal(
-                                        {{ $p->id }},
-                                        '{{ $p->buku->judul_buku }}',
-                                        '{{ $p->anggota->nama_lengkap }}',
-                                        '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}',
-                                        '{{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('Y-m-d') }}'
-                                    )"
+                            {{ $p->id }},
+                            '{{ $p->buku->judul_buku }}',
+                            '{{ $p->anggota->nama_lengkap }}',
+                            '{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}',
+                            '{{ \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->format('Y-m-d') }}'
+                        )"
                                                 class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl">
                                                 Proses
                                             </button>
@@ -104,7 +102,13 @@
 
                                     </tr>
                                 @endif
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center p-6 text-gray-400">
+                                        Tidak ada data peminjaman
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -127,7 +131,7 @@
                         </thead>
 
                         <tbody class="divide-y divide-gray-100">
-                            @foreach ($pembayaranDenda as $i => $p)
+                            @forelse ($pembayaranDenda as $i => $p)
                                 @if ($p->status == 'menunggu_pembayaran')
                                     <tr class="hover:bg-orange-50/30">
 
@@ -159,7 +163,13 @@
 
                                     </tr>
                                 @endif
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center p-6 text-gray-400">
+                                        Tidak ada data pembayaran denda
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

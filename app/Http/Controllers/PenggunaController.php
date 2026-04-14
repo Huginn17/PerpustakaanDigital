@@ -29,7 +29,6 @@ class PenggunaController extends Controller
 
     public function store(Request $request)
     {
-        // tentukan tabel berdasarkan role
         $table = match ($request->role) {
             'anggota' => 'anggotas',
             'petugas' => 'petugas',
@@ -41,7 +40,6 @@ class PenggunaController extends Controller
             return back()->with('error', 'Role tidak valid');
         }
 
-        // validasi
         $validated = $request->validate([
             "username"        => "required|max:14|unique:users,username",
             "email"           => "required|email|unique:users,email",
@@ -62,7 +60,7 @@ class PenggunaController extends Controller
             "role"     => $validated['role'],
         ]);
 
-        // data relasi (PERBAIKAN DI SINI)
+        // data relasi
         $data = [
             "user_id"        => $user->id,
             "nama_lengkap"   => $validated['nama_lengkap'],
@@ -72,14 +70,18 @@ class PenggunaController extends Controller
             "alamat"         => $validated['alamat'],
         ];
 
-        // mapping model (array, bukan match)
+        // 🔥 TAMBAHAN KHUSUS ANGGOTA
+        if ($validated['role'] === 'anggota') {
+            $data['max_pinjam'] = 3;
+            $data['jumlah_pinjam_aktif'] = 0;
+        }
+
         $modelMap = [
             'anggota' => Anggota::class,
             'petugas' => Petugas::class,
             'kepala_perpustakaan' => KepalaPerpustakaan::class,
         ];
 
-        // simpan ke tabel sesuai role
         $modelMap[$validated['role']]::create($data);
 
         return redirect()
@@ -213,6 +215,8 @@ class PenggunaController extends Controller
 
         $relasiNama = $relasiMap[$roleBaru];
 
+        $relasi = $user->$relasiNama;
+
         $dataRelasi = [
             'user_id'        => $user->id,
             'nama_lengkap'   => $validated['nama_lengkap'],
@@ -222,7 +226,15 @@ class PenggunaController extends Controller
             'alamat'         => $validated['alamat'],
         ];
 
-        $relasi = $user->$relasiNama;
+        //  TAMBAHAN KHUSUS ANGGOTA
+        if ($roleBaru === 'anggota') {
+            $dataRelasi['max_pinjam'] = 3;
+
+            // jangan reset kalau sudah ada (biar tidak merusak data pinjaman)
+            if (!$relasi) {
+                $dataRelasi['jumlah_pinjam_aktif'] = 0;
+            }
+        }
 
         if ($relasi) {
             $relasi->update($dataRelasi);
@@ -231,7 +243,7 @@ class PenggunaController extends Controller
         }
 
 
-        return redirect()->route('kepala.pengguna.index')->with('success', 'Pengguna berhasil diperbarui.');
+        return redirect()->route('kepala.pengguna.index')-> with('success', 'Pengguna berhasil diperbarui.');
     }
 
     // Delete Penggguna

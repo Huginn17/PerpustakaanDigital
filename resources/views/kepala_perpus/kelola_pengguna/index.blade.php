@@ -1,136 +1,100 @@
 @extends('kepala_perpus.layout.index')
 
 @section('kepala_content')
-    <div class="p-6 sm:ml-64 bg-[#f0f2f5] min-h-screen font-sans">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-        {{-- Header Section dengan Background Gradient --}}
-        <div
-            class="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-3xl p-8 mb-8 shadow-2xl">
-            <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="text-center md:text-left">
-                    <h1 class="text-3xl font-black text-white tracking-tight uppercase italic">
-                        Member <span class="text-yellow-300">Galaxy</span>
-                    </h1>
-                    <p class="text-indigo-100 font-medium">Kelola kru perpustakaan dalam satu kendali kosmik.</p>
-                </div>
+    <div class="p-6 sm:ml-64 bg-slate-50 min-h-screen">
 
-                <a href="{{ route('kepala.pengguna.create') }}"
-                    class="group relative inline-flex items-center px-8 py-3.5 font-bold text-white transition-all duration-300 bg-white/20 backdrop-blur-md border-2 border-white/30 rounded-full hover:bg-white hover:text-indigo-600">
-                    <span
-                        class="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-white opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    TAMBAH KRU BARU
-                </a>
+        {{-- Header Section --}}
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">
+                    Data <span class="text-orange-500">Pengguna</span>
+                </h1>
+                <p class="text-slate-500 font-medium text-sm mt-1">Kelola informasi personel dan hak akses sistem.</p>
             </div>
-            {{-- Elemen Dekoratif --}}
-            <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-black/10 rounded-full blur-3xl"></div>
+
+            <a href="{{ route('kepala.pengguna.create') }}"
+                class="flex items-center px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-orange-200 active:scale-95">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Tambah Pengguna
+            </a>
         </div>
 
-        {{-- Alert dengan Animasi --}}
-        @if (session('success'))
-            <div
-                class="animate-bounce mb-6 flex items-center p-4 text-white bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl shadow-lg">
-                <div class="bg-white/20 p-2 rounded-lg mr-3">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-                <span class="font-bold uppercase tracking-wider text-sm">{{ session('success') }}</span>
-            </div>
-        @endif
-
-        {{-- Container Kartu Tabel --}}
-        <div class="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden border border-white">
+        {{-- Table Card --}}
+        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
-                        <tr class="bg-gray-50 border-b border-gray-100">
-                            <th class="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Rank
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th
+                                class="px-8 py-5 text-left text-xs font-bold text-slate-400 uppercase tracking-widest text-center w-20">
+                                No</th>
+                            <th class="px-8 py-5 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                Informasi Pengguna</th>
+                            <th class="px-8 py-5 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                Level Akses</th>
+                            <th class="px-8 py-5 text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Aksi
                             </th>
-                            <th class="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">
-                                Profile Identity</th>
-                            <th class="px-8 py-6 text-center text-xs font-black text-gray-400 uppercase tracking-[0.2em]">
-                                Access Level</th>
-                            <th class="px-8 py-6 text-right text-xs font-black text-gray-400 uppercase tracking-[0.2em]">
-                                Command</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y divide-slate-100">
                         @foreach ($pengguna as $i => $user)
-                            <tr class="hover:bg-indigo-50/30 transition-all duration-300">
-                                <td class="px-8 py-6">
-                                    <span
-                                        class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-500 font-black text-sm">
-                                        #{{ $i + 1 }}
-                                    </span>
+                            <tr class="group hover:bg-orange-50/20 transition-colors">
+                                <td class="px-8 py-6 text-center">
+                                    <span class="text-slate-400 font-bold text-sm">{{ $i + 1 }}</span>
                                 </td>
                                 <td class="px-8 py-6">
                                     <div class="flex items-center">
-                                        <div class="relative">
-                                            <div
-                                                class="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-black shadow-lg transform rotate-3 group-hover:rotate-0 transition-transform">
-                                                {{ strtoupper(substr($user->username, 0, 1)) }}
-                                            </div>
-                                            {{-- <div
-                                                class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-4 border-white rounded-full">
-                                            </div> --}}
+                                        <div
+                                            class="h-12 w-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 font-black text-lg border border-orange-200 shadow-sm">
+                                            {{ strtoupper(substr($user->username, 0, 1)) }}
                                         </div>
-                                        <div class="ml-5">
-                                            <h3 class="text-gray-900 font-extrabold text-lg leading-tight">
-                                                {{ $user->username }}</h3>
-                                            <p class="text-indigo-400 font-medium text-sm">{{ $user->email }}</p>
+                                        <div class="ml-4">
+                                            <p class="text-slate-800 font-bold text-base leading-none">{{ $user->username }}
+                                            </p>
+                                            <p class="text-slate-400 text-xs mt-1">{{ $user->email }}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-8 py-6 text-center">
-                                    @php
-                                        $roleColor =
-                                            $user->role == 'admin'
-                                                ? 'from-orange-400 to-red-500'
-                                                : 'from-blue-400 to-indigo-500';
-                                    @endphp
                                     <span
-                                        class="px-4 py-1.5 rounded-full bg-gradient-to-r {{ $roleColor }} text-white text-[10px] font-black uppercase tracking-widest shadow-md">
-                                        {{ str_replace('_', ' ', $user->role) }}
+                                        class="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider {{ $user->role == 'admin' ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-600' }}">
+                                        {{ $user->role }}
                                     </span>
                                 </td>
                                 <td class="px-8 py-6">
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('kepala.pengguna.edit', $user->id) }}"
-                                            class="p-3 text-amber-500 hover:bg-amber-100 rounded-2xl transition-colors border-2 border-amber-50 shadow-sm"
-                                            title="Edit User">
+                                        <a href="{{ route('kepala.pengguna.detail', $user->id) }}"
+                                            class="p-2.5 text-slate-400 hover:text-orange-500 hover:bg-white rounded-xl transition-all border border-transparent hover:border-orange-100 hover:shadow-sm">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                                </path>
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
-                                        
-                                        <a href="{{ route('kepala.pengguna.detail', $user->id) }}"
-                                            class="p-3 text-amber-500 hover:bg-amber-100 rounded-2xl transition-colors border-2 border-amber-50 shadow-sm"
-                                            title="Edit User">
+
+                                        <a href="{{ route('kepala.pengguna.edit', $user->id) }}"
+                                            class="p-2.5 text-slate-400 hover:text-orange-500 hover:bg-white rounded-xl transition-all border border-transparent hover:border-orange-100 hover:shadow-sm">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                                </path>
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </a>
 
                                         <form action="{{ route('kepala.pengguna.destroy', $user->id) }}" method="POST"
-                                            onsubmit="return confirm('Hapus data kru ini?')">
-                                            @csrf
-                                            @method('DELETE')
+                                            onsubmit="return confirm('Hapus pengguna?')">
+                                            @csrf @method('DELETE')
                                             <button
-                                                class="p-3 text-red-500 hover:bg-red-100 rounded-2xl transition-colors border-2 border-red-50 shadow-sm"
-                                                title="Delete User">
+                                                class="p-2.5 text-slate-400 hover:text-red-500 hover:bg-white rounded-xl transition-all border border-transparent hover:border-red-100 hover:shadow-sm">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                    </path>
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
                                         </form>
@@ -143,13 +107,4 @@
             </div>
         </div>
     </div>
-
-    <style>
-        /* Custom font import jika ingin lebih unik */
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-    </style>
 @endsection

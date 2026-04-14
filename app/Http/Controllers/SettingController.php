@@ -14,9 +14,11 @@ class SettingController extends Controller
         // kalau belum ada, buat default
         if (!$setting) {
             $setting = Setting::create([
-                'denda_per_hari' => 10000
+                'denda_per_hari' => 10000,
+                'max_hari_pinjam' => 14
             ]);
         }
+
 
         return view('kepala_perpus.setting', compact('setting'));
     }
@@ -24,21 +26,20 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'denda_per_hari' => 'required|numeric|min:0'
+            'denda_per_hari' => 'required',
+            'max_hari_pinjam' => 'required|integer|min:1'
         ]);
 
-        $setting = Setting::first();
+        $denda = preg_replace('/[^0-9]/', '', $request->denda_per_hari);
 
-        if (!$setting) {
-            Setting::create([
-                'denda_per_hari' => $request->denda_per_hari
-            ]);
-        } else {
-            $setting->update([
-                'denda_per_hari' => $request->denda_per_hari
-            ]);
-        }
+        Setting::updateOrCreate(
+            ['id' => 1],
+            [
+                'denda_per_hari' => $denda,
+                'max_hari_pinjam' => $request->max_hari_pinjam
+            ]
+        );
 
-        return back()->with('success', 'Denda per hari berhasil diperbarui');
+        return back()->with('success', 'Pengaturan berhasil diperbarui');
     }
 }

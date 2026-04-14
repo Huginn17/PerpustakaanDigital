@@ -11,18 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
-            $table->decimal('denda_per_hari', 12, 2)->default(10000);
-            $table->timestamps();
+        Schema::table('settings', function (Blueprint $table) {
+            $table->integer('max_hari_pinjam')->default(14);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('settings');
+        Schema::table('settings', function (Blueprint $table) {
+            $table->dropColumn('max_hari_pinjam');
+        });
     }
 };
